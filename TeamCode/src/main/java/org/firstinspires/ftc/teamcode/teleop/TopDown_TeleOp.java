@@ -29,22 +29,13 @@
 
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-//import com.qualcomm.robotcore.util.Hardware;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import org.firstinspires.ftc.teamcode.NewHardwareMap;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import java.util.concurrent.locks.Lock;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.util.RobotLog;
+
+import org.firstinspires.ftc.teamcode.NewHardwareMap;
+
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -59,10 +50,10 @@ import com.qualcomm.robotcore.util.Range;
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
-@Disabled
-@TeleOp(name="TeleOp_Lift", group="Iterative Opmode")
 
-public class TeleOp_Lift extends OpMode
+@TeleOp(name="TopDown_Teleop", group="Iterative Opmode")
+
+public class TopDown_TeleOp extends OpMode
 {
 
     /* Declare OpMode members. */
@@ -71,27 +62,44 @@ public class TeleOp_Lift extends OpMode
     boolean b_pressed = false;
     boolean x_pressed = false;
     boolean y_pressed = false;
+    boolean bumper_pressed = false;
     boolean ShooterOn = false;
-    private final int power = 0;
-    private final double powerIncrement = 0.01;
-    private final double powerMax = 0.6;
-    private double powerDown = -0.6;
-    private final double powerMin = -0.2;
+    static final double     PI = Math.PI;
+    static final double     COUNTS_PER_MOTOR_REV    = 537.6;    // eg: TETRIX Motor Encoder
+    static final double     DRIVE_GEAR_REDUCTION    = 1.0;     // This is < 1.0 if geared UP 0.025
+    static final double     WHEEL_DIAMETER_INCHES   = 3.78;     // For figuring circumference
+    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+            (WHEEL_DIAMETER_INCHES * PI);
+    static final double LiftPos = 0;
+    static final double posOpen = 0.5;
+    static final double posClose =0.9;
+    static final double INCREMENT   = 0.05;     // amount to slew servo each CYCLE_MS cycle
+    static final int    CYCLE_MS    =   50;     // period of each cycle
+    static final double MAX_POS     =  1.0;     // Maximum rotational position
+    static final double MIN_POS     =  0.0;     // Minimum rotational position
+
+    double  position_one = 0;
+    double  position_two = 0;
+    double pressed = 0;
+
+    //double wPower = 0.0;
     /*
      * Code to run when the op mode is first enabled goes here
      *
      * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#start()
      */
+
     @Override
+
     public void init() {
-
+        RobotLog.d("LOGGING START");
         robot.init(hardwareMap);
+        //robot.drone.setPosition(0.1);
+        //Higher hand one is up
+        //Lower hand two is up
+        /*robot.hand_one.setPosition(1);
+        robot.hand_two.setPosition(0);*/
 
-        // assign the starting position of the wrist and hand
-        /*robot.ScoopL.setPosition(robot.ScoopL_Down);
-        robot.ScoopR.setPosition(robot.ScoopR_Down);
-        robot.Hammer.setPosition(robot.Hammer_stowed);
-        robot.WG_lock.setPosition(robot.WG_locked);*/
 
     }
 
@@ -101,88 +109,96 @@ public class TeleOp_Lift extends OpMode
      * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
      */
     @Override
-    public void loop()
-    {
-        double power =  gamepad1.left_stick_y;
-        double strafe = gamepad1.left_stick_x;
-        double turn  =  gamepad1.right_stick_x;
-        double left    = Range.clip(power - turn, -0.8, 0.8);
-        double right   = Range.clip(power + turn, -0.8, 0.8) ;
+    public void loop() {
+        double power = gamepad1.left_stick_y;
+        double strafe = -gamepad1.left_stick_x;
+        double turn = gamepad1.right_stick_x;
+        double left = Range.clip(power - turn, -0.6, 0.6);
+        double right = Range.clip(power + turn, -0.6, 0.6);
 
         // scale the joystick value to make it easier to control
         // the robot more precisely at slower speeds.
-    /*right = (float)scaleInput(right);
-    left =  (float)scaleInput(left);
+        right = (float) scaleInput(right);
+        left = (float) scaleInput(left);
 
-    //Turbo to 100%
-    if (gamepad1.left_stick_button){
-        right = Range.clip(right * 1.4, -1.0, 1.0);
-        left  = Range.clip(left * 1.4, -1.0, 1.0);}*/
+        //Turbo to 100%
+        if (gamepad1.x && !x_pressed) {
+            right = Range.clip(right * 1.4, -1.0, 1.0);
+            left = Range.clip(left * 1.4, -1.0, 1.0);
+        }
 
 
 //(Note: The joystick goes negative when pushed forwards, so negate it for robot to drive forwards.)
 //Left Joystick Manipulates Left Motors
-    /*robot.FmotorLeft.setPower(left-strafe);
-    robot.BmotorLeft.setPower(left+strafe);
-    robot.FmotorRight.setPower(right+strafe);
-    robot.BmotorRight.setPower(right-strafe);*/
+        robot.FmotorLeft.setPower(left - strafe);
+        robot.BmotorLeft.setPower(left + strafe);
+        robot.FmotorRight.setPower(right - strafe);
+        robot.BmotorRight.setPower(right + strafe);
 
-
-        //DuckMotor
-    /*if (gamepad1.b && !b_pressed){  //Only toggle on leading edge
-        robot.DuckMotor.setPower(-0.6);
-    }else{
-        robot.DuckMotor.setPower(0);
-        b_pressed = true;
-    }
-
-
-    // Intake Motor Control
-    if (gamepad1.left_bumper){  //Only toggle on leading edge
-                robot.Intake1.setPower(1.0);
-                robot.Intake2.setPower(1.0);
-            }else{
-                robot.Intake1.setPower(0);
-                robot.Intake2.setPower(0);
-            }*/
-        //Out
-    /*if (gamepad1.left_trigger > 0.25 && !gamepad1.left_bumper) {
-           if (gamepad1.a && !a_pressed) {
-            robot.Intake1.setPower(-1);
-            robot.Intake2.setPower(-1);
-            }else{
-            robot.Intake1.setPower(-0.75);
-            robot.Intake2.setPower(-0.75);
-            }
-    }else{
-            robot.Intake1.setPower(0);
-            robot.Intake2.setPower(0);
-        }*/
 
         // Lift Motor Control
-        if ((gamepad1.right_bumper) && (!robot.touch3.isPressed())){
-            robot.LiftMotor.setPower(1.0);   // Lift UP
-        }else if ((gamepad1.right_trigger) > 0.25 && (!robot.touch.isPressed())) {
-            robot.LiftMotor.setPower(-0.8);  // Lift DOWN
-        }else{
+        if ((gamepad1.right_bumper) && (gamepad1.right_trigger) < 0.25) {
+            robot.LiftMotor.setPower(0.5);   // Lift UP
+        } else if ((gamepad1.right_trigger) > 0.25 && (!gamepad1.right_bumper)) {
+            robot.LiftMotor.setPower(-0.5);  // Lift DOWN
+        } else {
             robot.LiftMotor.setPower(0.0);
-            powerDown = 0;
+            //x_pressed = true;
         }
 
-      /*if (gamepad1.x && !x_pressed) {
-          robot.LiftMotor.setPower(-0.6);
-      }
-      else{
-          robot.LiftMotor.setPower(0);
-      }*/
+        /*if (gamepad1.x && !x_pressed) {
+            robot.drone.setPosition(0.75);
+        }
+
+        //Score
+        if ((gamepad1.left_bumper) && (gamepad1.left_trigger) < 0.25) {
+            robot.hand_one.setPosition(0.65);
+            robot.hand_two.setPosition(0.35);
+
+        }
+        //Pick Up
+        else if ((!gamepad1.left_bumper) && (gamepad1.left_trigger) > 0.25) {
+            robot.hand_one.setPosition(0.8);
+            robot.hand_two.setPosition(0.2);
+        }
+        //Close
+        if (gamepad1.y && !y_pressed) {
+            //closed
+                robot.claw_one.setPosition(0.5);
+                robot.claw_two.setPosition(0.5);
+
+        }
+        //Open a bit
+        if(gamepad1.a && !a_pressed) {
+            robot.claw_one.setPosition(0.48);
+            robot.claw_two.setPosition(0.52);
+        }
+        //Open all the way
+        if(gamepad1.b && !b_pressed) {
+            robot.claw_one.setPosition(0.4);
+            robot.claw_two.setPosition(0.6);
+        }*/
+
+
+
 
         //Reset button toggles
-        if (!gamepad1.a) a_pressed = false;
+        //robot.hand_one.setPosition(position_one);
+         //robot.hand_two.setPosition(position_two);
+        //if (!gamepad1.a) a_pressed = false;
         if (!gamepad1.b) b_pressed = false;
         if (!gamepad1.x) x_pressed = false;
         if (!gamepad1.y) y_pressed = false;
+        if (!gamepad1.left_bumper) bumper_pressed = false;
 
+        //if (!gamepad2.a) a_pressed = false;
+        //if (!gamepad2.b) b_pressed = false;
+        //if (!gamepad2.x) x_pressed = false;
+        //if (!gamepad2.y) y_pressed = false;
 
+        //telemetry.addData("range", String.format("%.01f cm", robot.sensorRange.getDistance(DistanceUnit.CM)));
+        //telemetry.addData("range", String.format("%.01f in", robot.sensorRange.getDistance(DistanceUnit.INCH)));
+        //RobotLog.d("%.01f cm,%.01f in,",robot.sensorRange.getDistance(DistanceUnit.CM),robot.sensorRange.getDistance(DistanceUnit.INCH));
     }//loop end
 
 
@@ -192,7 +208,6 @@ public class TeleOp_Lift extends OpMode
     {
         telemetry.addData("Robot", "Stopped");
     }
-
     /*
      * This method scales the joystick input so for low joystick values, the
      * scaled value is less than linear.  This is to make it easier to drive
@@ -201,7 +216,7 @@ public class TeleOp_Lift extends OpMode
     double scaleInput(double dVal)  {
         double[] scaleArray = { 0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.20,
                 //0.30, 0.40, 0.50, 0.55, 0.60, 0.65, 0.7, 0.75, 0.75};
-                0.30, 0.36, 0.43, 0.50, 0.60, 0.72, 0.85, 1.00, 1.00 };
+                0.30, 0.36, 0.43, 0.50, 0.60, 0.72, 0.72, 0.85, 1.00 };
         // get the corresponding index for the scaleInput array.
         int index = (int) (dVal * 16.0);
         if (index < 0) {

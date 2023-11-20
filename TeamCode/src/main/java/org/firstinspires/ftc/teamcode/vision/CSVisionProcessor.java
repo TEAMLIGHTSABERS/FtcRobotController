@@ -13,10 +13,10 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 public class CSVisionProcessor implements VisionProcessor {
-    public Rect rectLeft = new Rect(110, 42, 40, 40);
-    public Rect rectMiddle = new Rect(160, 42, 40, 40);
-    public Rect rectRight = new Rect(210, 42, 40, 40);
-    Selected selection = Selected.NONE;
+    public Rect rectLeft = new Rect(50, 253, 75, 90);
+    public Rect rectMiddle = new Rect(305, 233, 65, 75);
+    public Rect rectRight = new Rect(535, 270, 80, 90);
+    public Selected selection = Selected.NONE;
 
     Mat submat = new Mat();
     Mat hsvMat = new Mat();

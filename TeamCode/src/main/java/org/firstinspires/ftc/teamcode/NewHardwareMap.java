@@ -89,11 +89,6 @@ public class NewHardwareMap
     DcMotor Intake2 = null;
     public DcMotor DuckMotor = null;
     //DcMotorSimple Shooter = null;    //SparkMini
-    /*Servo ScoopL;
-    Servo ScoopR;
-    Servo Hammer;
-    Servo WG_lock;*/
-    Servo CameraPan;
     public CRServo Gray;
     public CRServo Green;
     public Servo FreightArm;
@@ -102,6 +97,37 @@ public class NewHardwareMap
     public TouchSensor touch;
     public TouchSensor touch3;
     public DistanceSensor sensorRange;
+    public Servo pixel;
+    public Servo drone;
+    public Servo hand_one;
+    public Servo hand_two;
+    public Servo claw_right;
+    public Servo claw_left;
+    public Servo shoulder_right;
+    public Servo shoulder_left;
+    public Servo wrist_right;
+    public Servo wrist_left;
+
+    //position of servos
+    //Less is more down
+    public final double shoulder_left_Down = 0.13;
+    public final double shoulder_left_Up = 0.6;
+    //More is more down
+    public final double shoulder_right_Down = 0.87;
+    public final double shoulder_right_Up = 0.4;
+    //Less is more down
+    public final double wrist_left_Pu = 0.84;
+    public final double wrist_left_Score = 0.06;
+    //More is more down
+    //Right is 2 less than necessary for 1.0
+    public final double wrist_right_Pu = 0.14;
+    public final double wrist_right_Score = 0.93;
+
+    public final double claw_left_Open = 0.4;
+    public final double claw_left_Close = 0.25;
+
+    public final double claw_right_Open = 0.65;
+    public final double claw_right_Close = 0.75;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -139,11 +165,11 @@ public class NewHardwareMap
         //BmotorLeft.setDirection(DcMotor.Direction.REVERSE);
         BmotorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        /*LiftMotor = hwMap.dcMotor.get("lift_motor");
-        //LiftMotor.setDirection(DcMotor.Direction.REVERSE);
+        LiftMotor = hwMap.dcMotor.get("lift_motor");
+        LiftMotor.setDirection(DcMotor.Direction.REVERSE);
         LiftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        Intake1 = hwMap.dcMotor.get("intake_left");
+        /*Intake1 = hwMap.dcMotor.get("intake_left");
         Intake1.setDirection(DcMotor.Direction.REVERSE);
         Intake1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -174,6 +200,27 @@ public class NewHardwareMap
         Gray = hwMap.crservo.get("gray");
         Green = hwMap.crservo.get("green");
         FreightArm = hwMap.servo.get("freight_arm");*/
+
+        /*pixel = hwMap.servo.get("pixel_servo");
+
+        drone = hwMap.servo.get("drone_servo");
+
+        hand_one = hwMap.servo.get("hand_one");
+
+        hand_two = hwMap.servo.get("hand_two");*/
+
+        claw_right = hwMap.servo.get("claw_right");
+
+        claw_left = hwMap.servo.get("claw_left");
+
+        shoulder_right = hwMap.servo.get("shoulder_right");
+
+        shoulder_left = hwMap.servo.get("shoulder_left");
+
+        wrist_right = hwMap.servo.get("wrist_right");
+
+        wrist_left = hwMap.servo.get("wrist_left");
+
 
         //Color Sensor
         //colorSensor = hwMap.get(NormalizedColorSensor.class, "sensor_color");
