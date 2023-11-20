@@ -27,12 +27,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode.concepts;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.MethodMap;
+import org.firstinspires.ftc.teamcode.NewHardwareMap;
+import org.firstinspires.ftc.teamcode.vision.CSVisionProcessor;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 /*
  * This OpMode scans a single servo back and forward until Stop is pressed.
@@ -48,9 +54,9 @@ import com.qualcomm.robotcore.hardware.Servo;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
-@TeleOp(name = "Concept: Scan Servo", group = "Concept")
 @Disabled
-public class ConceptScanServo extends LinearOpMode {
+@TeleOp(name = "Concept: Scan Servo1", group = "Concept")
+public class ConceptScanServo1 extends LinearOpMode {
 
     static final double INCREMENT   = 0.01;     // amount to slew servo each CYCLE_MS cycle
     static final int    CYCLE_MS    =   50;     // period of each cycle
@@ -61,6 +67,19 @@ public class ConceptScanServo extends LinearOpMode {
     Servo   servo;
     double  position = (MAX_POS - MIN_POS) / 2; // Start at halfway position
     boolean rampUp = true;
+    NewHardwareMap robot =   new NewHardwareMap();
+
+    public AprilTagProcessor aprilTag;
+
+    /**
+     * The variable to store our instance of the OpenCV processor.
+     */
+    public CSVisionProcessor visionProcessor;
+
+    /**
+     * The variable to store our instance of the vision portal.
+     */
+    public VisionPortal myVisionPortal;
 
 
     @Override
@@ -68,7 +87,13 @@ public class ConceptScanServo extends LinearOpMode {
 
         // Connect to servo (Assume Robot Left Hand)
         // Change the text in quotes to match any servo name on your robot.
-        servo = hardwareMap.get(Servo.class, "pixel");
+        robot.init(hardwareMap);
+
+        MethodMap method = new MethodMap(this, robot, aprilTag, visionProcessor, myVisionPortal);
+
+        //method.initAprilTag();
+
+        servo = robot.pixel;
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to scan Servo." );

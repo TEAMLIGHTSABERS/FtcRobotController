@@ -10,7 +10,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import androidx.annotation.NonNull;
 
 
-
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -23,11 +26,13 @@ import java.util.List;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.vision.CSVisionProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MethodMap {
 
@@ -61,24 +66,54 @@ public class MethodMap {
     public static final double     P_DRIVE_COEFF           = 0.025;     // Larger is more responsive, but also less stable
 
 
+
     public double sensorNum = 40;
     public double sensorNumIn = 0;
+
+    //pixelPos is equivelant to the correct AprilTagID
+    public int pixelPos = 0;
+    //These are the offset numbers for the AprilTag driving
+    public final double DESIRED_DISTANCE = 22.0;
+    public final double DESIRED_DISTANCE_X = 3.0; //  this is how close the camera should get to the target (inches)
 
     //April Tag Variables
     public static final boolean USE_WEBCAM = true;
 
+    public WebcamName webcam1, webcam2;
+
+    /**
+     * The variable to store our instance of the AprilTag processor.
+     */
     public AprilTagProcessor aprilTag;
 
-    public VisionPortal visionPortal;
+    /**
+     * The variable to store our instance of the OpenCV processor.
+     */
+    public CSVisionProcessor visionProcessor;
+
+    /**
+     * The variable to store our instance of the vision portal.
+     */
+    public VisionPortal myVisionPortal;
+
+    public int DESIRED_TAG_ID = -1; // Choose the tag you want to approach or set to -1 for ANY tag.
+
+    public AprilTagDetection desiredTag = null; // Used to hold the data for a detected AprilTag
+
+    public boolean targetFound = false;
 
     /**
      * This is the constructor that is used to not only brings the opMode and NewHardwareMap classes into our Method Map,
      * but is also then called into our opModes allowing us to send information back and forth between the two classes
      */
 
-    public MethodMap(LinearOpMode opMode, NewHardwareMap hardwareMap) {
+    public MethodMap(LinearOpMode opMode, NewHardwareMap hardwareMap, AprilTagProcessor aprilTag,
+                     CSVisionProcessor visionProcessor, VisionPortal myVisionPortal) {
         this.opMode = opMode;
         this.robot = hardwareMap;
+        this.aprilTag = aprilTag;
+        this.visionProcessor = visionProcessor;
+        this.myVisionPortal = myVisionPortal;
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
         parameters.mode                = BNO055IMU.SensorMode.IMU;
@@ -115,25 +150,42 @@ public class MethodMap {
      */
 
     //April Tag Methods
+    public void initDoubleVision() {
+        // -----------------------------------------------------------------------------------------
+        // AprilTag Configuration
+        // -----------------------------------------------------------------------------------------
 
-    public void initAprilTag() {
+        aprilTag = new AprilTagProcessor.Builder().build();
 
-        // Create the AprilTag processor the easy way.
-        aprilTag = AprilTagProcessor.easyCreateWithDefaults();
+        // -----------------------------------------------------------------------------------------
+        // OpenCV Configuration
+        // -----------------------------------------------------------------------------------------
 
-        // Create the vision portal the easy way.
-        if (USE_WEBCAM) {
-            visionPortal = VisionPortal.easyCreateWithDefaults(
-                    opMode.hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTag);
-        } else {
-            visionPortal = VisionPortal.easyCreateWithDefaults(
-                    BuiltinCameraDirection.BACK, aprilTag);
-        }
+        visionProcessor = new CSVisionProcessor();
 
-    }   // end method initAprilTag()
+        // -----------------------------------------------------------------------------------------
+        // Camera Configuration
+        // -----------------------------------------------------------------------------------------
 
+        webcam2 = opMode.hardwareMap.get(WebcamName.class, "Webcam 1");
+        webcam1 = opMode.hardwareMap.get(WebcamName.class, "Webcam 2");
+        CameraName switchableCamera = ClassFactory.getInstance()
+                .getCameraManager().nameForSwitchableCamera(webcam1, webcam2);
+
+        myVisionPortal = new VisionPortal.Builder()
+                .setCamera(switchableCamera)
+                .addProcessors(visionProcessor, aprilTag)
+                .build();
+
+
+    }// end initDoubleVision()
+
+
+
+    /**
+     * Add telemetry about AprilTag detections.
+     */
     public void telemetryAprilTag() {
-
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         opMode.telemetry.addData("# AprilTags Detected", currentDetections.size());
 
@@ -150,16 +202,50 @@ public class MethodMap {
             }
         }   // end for() loop
 
-        // Add "key" information to telemetry
-        opMode.telemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
-        opMode.telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
-        opMode.telemetry.addLine("RBE = Range, Bearing & Elevation");
-
     }   // end method telemetryAprilTag()
+
+    /*
+    Manually set the camera gain and exposure.
+    This can only be called AFTER calling initAprilTag(), and only works for Webcams;
+   */
+
+    private void    setManualExposure(int exposureMS, int gain) {
+        // Wait for the camera to be open, then use the controls
+
+        if (myVisionPortal == null) {
+            return;
+        }
+
+        // Make sure camera is streaming before we try to set the exposure controls
+        if (myVisionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+            opMode.telemetry.addData("Camera", "Waiting");
+            opMode.telemetry.update();
+            while (!opMode.isStopRequested() && (myVisionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)) {
+                opMode.sleep(20);
+            }
+            opMode.telemetry.addData("Camera", "Ready");
+            opMode.telemetry.update();
+        }
+
+        // Set camera controls unless we are stopping.
+        if (!opMode.isStopRequested())
+        {
+            ExposureControl exposureControl = myVisionPortal.getCameraControl(ExposureControl.class);
+            if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
+                exposureControl.setMode(ExposureControl.Mode.Manual);
+                opMode.sleep(50);
+            }
+            exposureControl.setExposure((long)exposureMS, TimeUnit.MILLISECONDS);
+            opMode.sleep(20);
+            GainControl gainControl = myVisionPortal.getCameraControl(GainControl.class);
+            gainControl.setGain(gain);
+            opMode.sleep(20);
+        }
+    }
 
     //Driving Methods
 
-    public void liftDrive(double power, int time, boolean hold) throws InterruptedException {
+    /*public void liftDrive(double power, int time, boolean hold) throws InterruptedException {
         robot.LiftMotor.setPower(power);
         opMode.sleep(time);
         if(hold == true) {
@@ -168,7 +254,7 @@ public class MethodMap {
         else{
             robot.LiftMotor.setPower(0);
         }
-    }
+    }*/
 
     public void gyroTelem() {
         opMode.telemetry.addData("imu calib status", imu.getCalibrationStatus().toString());
@@ -311,7 +397,7 @@ public class MethodMap {
 
     }
 
-    public void liftDrive(double speed, double LMotorInches, double timeoutS) {                                                                                                                                                                                                                 // :)
+    /*public void liftDrive(double speed, double LMotorInches, double timeoutS) {                                                                                                                                                                                                                 // :)
 
         int LMotorTarget;
 
@@ -339,7 +425,7 @@ public class MethodMap {
         robot.LiftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //sleep(250);   // optional pause after each move
-    }
+    }*/
 
     public void gyroDrive ( double speed,
                             double distance,
@@ -445,7 +531,7 @@ public class MethodMap {
             robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //}
     }
-    public void gyroDriveLD ( double speed,
+    /*public void gyroDriveLD ( double speed,
                               double distance,
                               double angle, double timeoutS) {
 
@@ -555,9 +641,9 @@ public class MethodMap {
             robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //}
-    }
+    }*/
 
-    public void gyroDriveLU ( double speed,
+    /*public void gyroDriveLU ( double speed,
                               double distance,
                               double angle, double timeoutS) {
 
@@ -667,7 +753,7 @@ public class MethodMap {
             robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
        // }
-    }
+    }*/
 
     public void gyroDriveAcc ( double speed,
                                double distance,
@@ -833,9 +919,9 @@ public class MethodMap {
             robot.BmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             // Determine new target position, and pass to motor controller
-            FLeftTarget  = (int)(-distance * COUNTS_PER_INCH);
+            FLeftTarget  = (int)(distance * COUNTS_PER_INCH);
             FRightTarget = (int)(distance * COUNTS_PER_INCH);
-            BLeftTarget = (int)(distance * COUNTS_PER_INCH);
+            BLeftTarget = (int)(-distance * COUNTS_PER_INCH);
             BRightTarget = (int)(-distance * COUNTS_PER_INCH);
 
             // Set Target and Turn On RUN_TO_POSITION
@@ -911,6 +997,148 @@ public class MethodMap {
             robot.FmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //}
+    }
+
+    public void gyroAprilStrafe ( double speed,
+                             double distance,
+                             double angle, double timeoutS, int DESIRED_TAG_ID) {
+
+        RobotLog.d("GS START");
+        int FLeftTarget;
+        int FRightTarget;
+        int BRightTarget;
+        int BLeftTarget;
+        double  max;
+        double  error;
+        double  steer;
+        double  frontSpeed;
+        double  backSpeed;
+
+        // Ensure that the opmode is still active
+        //if (opMode.opModeIsActive()) {
+
+        robot.FmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.FmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.BmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.BmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        // Determine new target position, and pass to motor controller
+        FLeftTarget  = (int)(distance * COUNTS_PER_INCH);
+        FRightTarget = (int)(distance * COUNTS_PER_INCH);
+        BLeftTarget = (int)(-distance * COUNTS_PER_INCH);
+        BRightTarget = (int)(-distance * COUNTS_PER_INCH);
+
+        // Set Target and Turn On RUN_TO_POSITION
+        robot.FmotorLeft.setTargetPosition(FLeftTarget);
+        robot.FmotorRight.setTargetPosition(FRightTarget);
+        robot.BmotorLeft.setTargetPosition(BLeftTarget);
+        robot.BmotorRight.setTargetPosition(BRightTarget);
+
+        robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.FmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.BmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);;
+
+        // start motion.
+        runtime.reset();
+        //speed = Range.clip(Math.abs(speed), 0.0, 1.0);
+        robot.FmotorLeft.setPower(Math.abs(speed));
+        robot.FmotorRight.setPower(Math.abs(speed));
+        robot.BmotorLeft.setPower(Math.abs(speed));
+        robot.BmotorRight.setPower(Math.abs(speed));
+
+        // keep looping while we are still active, and BOTH motors are running.
+        while (opMode.opModeIsActive() &&
+                (runtime.seconds() < timeoutS) &&
+                (robot.FmotorLeft.isBusy() && robot.FmotorRight.isBusy() && robot.BmotorLeft.isBusy() && robot.BmotorRight.isBusy() )) {
+
+            // adjust relative speed based on heading error.
+            error = getError(angle);
+            steer = getSteer(error, P_DRIVE_COEFF);
+
+            // if driving in reverse, the motor correction also needs to be reversed
+            if (distance < 0)
+                steer *= -1.0;
+
+            frontSpeed = speed - steer;
+            backSpeed = speed + steer;
+
+            // Normalize speeds if either one exceeds +/- 1.0;
+            max = Math.max(Math.abs(frontSpeed), Math.abs(backSpeed));
+            if (max > 1.0)
+            {
+                frontSpeed /= max;
+                backSpeed /= max;
+            }
+
+            robot.FmotorLeft.setPower(frontSpeed);
+            robot.BmotorLeft.setPower(backSpeed);
+            robot.FmotorRight.setPower(frontSpeed);
+            robot.BmotorRight.setPower(backSpeed);
+
+            List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+            for (AprilTagDetection detection : currentDetections) {
+                // Look to see if we have size info on this tag.
+                if (detection.metadata != null) {
+                    //  Check to see if we want to track towards this tag.
+                    if ((DESIRED_TAG_ID < 0) || (detection.id == DESIRED_TAG_ID)) {
+                        // Yes, we want to use this tag.
+                        targetFound = true;
+                        desiredTag = detection;
+                        break;  // don't look any further.
+                    } /*else {
+                        // This tag is in the library, but we do not want to track it right now.
+                        opMode.telemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
+                    }
+                } else {
+                    // This tag is NOT in the library, so we don't have enough information to track to it.
+                    opMode.telemetry.addData("Unknown", "Tag ID %d is not in TagLibrary", detection.id);
+                    }*/
+                }
+            }
+
+            // Display drive status for the driver.
+            opMode.telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
+            opMode.telemetry.addData("Target",  "%7d:%7d:%7d:%7d",      FLeftTarget,  FRightTarget, BLeftTarget,  BRightTarget);
+            opMode.telemetry.addData("Actual",  "%7d:%7d:%7d:%7d",      robot.FmotorLeft.getCurrentPosition(),
+                    robot.FmotorRight.getCurrentPosition(), robot.BmotorLeft.getCurrentPosition(),
+                    robot.BmotorRight.getCurrentPosition());
+            opMode.telemetry.addData("Speed",   "%5.2f:%5.2f",  frontSpeed, backSpeed);
+            opMode.telemetry.update();
+            RobotLog.d("%7d,%7d,%7d,%7d,%7d,", FLeftTarget,robot.FmotorLeft.getCurrentPosition(),
+                    robot.FmotorRight.getCurrentPosition(),robot.BmotorLeft.getCurrentPosition(),
+                    robot.BmotorRight.getCurrentPosition());
+        }
+
+        RobotLog.d("GS STOP");
+        // Stop all motion;
+        robot.FmotorLeft.setPower(0);
+        robot.FmotorRight.setPower(0);
+        robot.BmotorLeft.setPower(0);
+        robot.BmotorRight.setPower(0);
+
+        while(!targetFound) {
+            List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+            for (AprilTagDetection detection : currentDetections) {
+                // Look to see if we have size info on this tag.
+                if (detection.metadata != null) {
+                    //  Check to see if we want to track towards this tag.
+                    if ((DESIRED_TAG_ID < 0) || (detection.id == DESIRED_TAG_ID)) {
+                        // Yes, we want to use this tag.
+                        targetFound = true;
+                        desiredTag = detection;
+                        break;  // don't look any further.
+                    }
+                }
+            }
+        }
+
+        // Turn off RUN_TO_POSITION
+        robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.FmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //}
     }
 
