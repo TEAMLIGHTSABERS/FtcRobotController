@@ -58,7 +58,7 @@ public class PixelPlaceSlideBlue extends LinearOpMode {
     /*
      * Variables used for switching cameras.
      */
-    private WebcamName webcam1, webcam2;
+    private WebcamName webcam1;
 
     /**
      * The variable to store our instance of the AprilTag processor.
@@ -89,170 +89,140 @@ public class PixelPlaceSlideBlue extends LinearOpMode {
 
         robot.init(hardwareMap);
         MethodMap method = new MethodMap(this, robot, aprilTag, visionProcessor, myVisionPortal);
-
-        robot.pixel.setPosition(0.75);
-        robot.drone.setPosition(0.1);
-        robot.claw_right.setPosition(0.5);
-        robot.claw_left.setPosition(0.5);
-        /*robot.hand_one.setPosition(1);
-        robot.hand_two.setPosition(0);*/
+        robot.claw_right.setPosition(robot.claw_right_Close);
+        robot.claw_left.setPosition(robot.claw_left_Close);
+        robot.shoulder_right.setPosition(robot.shoulder_right_Down);
+        robot.shoulder_left.setPosition(robot.shoulder_left_Down);
+        robot.drone.setPosition(0.4);
 
 
         method.initDoubleVision();
 
         while (opModeInInit()) {
-            telemetry.addData("Identified", visionProcessor.getSelection());
+            telemetry.addData("Identified", method.visionProcessor.getSelection());
             telemetry.update();
         }
 
-        //myVisionPortal.setActiveCamera(webcam2);
-
-        //setManualExposure(1, 250);  // Use low exposure time to reduce motion blur
-
-
         waitForStart();
+        robot.wrist_right.setPosition(robot.wrist_right_Drive);
+        robot.wrist_left.setPosition(robot.wrist_left_Drive);
 
-        robot.hand_one.setPosition(1);
-        robot.hand_two.setPosition(0);
-        sleep(300);
-
-        telemetry.addData("Identified", visionProcessor.getSelection());
+        telemetry.addData("Identified", method.visionProcessor.getSelection());
 
         //Deliver the pixel to the correct spike mark
-        //myVisionPortal.setActiveCamera(webcam2);
-        myVisionPortal.setProcessorEnabled(visionProcessor, false);
+        method.myVisionPortal.setProcessorEnabled(method.visionProcessor, false);
 
-        //method.gyroDrive(0.8, -28, 0, 15.0);
+        method.gyroDrive(0.4, 5, 0, 15.0);
 
-        switch (visionProcessor.getSelection()) {
+        switch (method.visionProcessor.getSelection()) {
             case LEFT:
                 method.DESIRED_TAG_ID = 1;
-                method.gyroDrive(0.8, -27, 0, 15.0);
+                method.gyroStrafe(0.6, 13, 0, 15.0);
+                method.gyroDrive(0.8, 13, 0, 15.0);
+                robot.claw_right.setPosition(robot.claw_right_Open);
+                method.gyroDrive(0.4, -5, 0, 15.0);
+                robot.claw_right.setPosition(robot.claw_right_Close);
                 method.gyroTurn(0.6, 90);
-                method.gyroDrive(0.4, -20, 90, 15.0);
+                method.gyroDrive(0.4, 10, 90, 15.0);
+                method.gyroStrafe(0.6, -10, 90, 15.0);
+
 
                 break;
             case RIGHT:
                 method.DESIRED_TAG_ID = 3;
-                method.pixelPos = 1;
-                method.gyroDrive(0.8, -26, 0, 15.0);
+                method.pixelPos = 5;
+                method.right_dis = 2;
+                method.gyroDrive(0.8, 22, 0, 15.0);
+                method.gyroTurn(0.6, -90);
+                method.gyroDrive(0.4, 2, -90, 15.0);
+                robot.claw_right.setPosition(robot.claw_right_Open);
+                method.gyroDrive(0.8, -7, -90, 15.0);
+                method.gyroTurn(0.6, 0);
+                robot.claw_right.setPosition(robot.claw_right_Close);
                 method.gyroTurn(0.6, 90);
-                method.gyroDrive(0.8, 4, 90, 15.0);
+                method.gyroDrive(0.6, 20, 90, 15.0);
+                method.gyroStrafe(0.6, -10, 90, 15.0);
 
                 break;
             case MIDDLE:
                 method.DESIRED_TAG_ID = 2;
-                method.pixelPos = 2;
-                method.gyroDrive(0.8, -28, 0, 15.0);
-                method.gyroDrive(0.4, -17, 0, 15.0);
+                method.gyroStrafe(0.6, 8, 0, 15.0);
+                method.gyroDrive(0.8, 20, 0, 15.0);
+                //method.gyroTurn(0.6, -30);
+                //sleep(1000);
+                robot.claw_right.setPosition(robot.claw_right_Open);
+                method.gyroDrive(0.4, -5, 0, 15.0);
+                robot.claw_right.setPosition(robot.claw_right_Close);
+                method.gyroTurn(0.6, 90);
+                method.gyroDrive(0.4, 12, 90, 15.0);
+                method.gyroStrafe(0.6, -10, 90, 15.0);
 
         };
 
-        sleep(500);
-        robot.pixel.setPosition(0.2);
-        sleep(500);
+        robot.wrist_right.setPosition(robot.wrist_right_Drive);
+        robot.wrist_left.setPosition(robot.wrist_left_Drive);
 
         //Drive to backdrop and deliver the yellow pixel to the correct spot
-        if(method.pixelPos == 2) {
-            //method.gyroTurn(0.4, 90);
-            method.gyroDrive(0.8, 24, 0, 15.0);
-        } else if (method.pixelPos == 1) {
-            method.gyroDrive(0.8, -22, 90, 15.0);
-            method.gyroTurn(0.4, 90);
-            method.gyroStrafe(0.6, -13, 90, 15.0);
-            sleep(200);
+
+        while(!method.targetFound) {
+
+            List<AprilTagDetection> currentDetections = method.aprilTag.getDetections();
+            for (AprilTagDetection detection : currentDetections) {
+                // Look to see if we have size info on this tag.
+                if (detection.metadata != null) {
+                    //  Check to see if we want to track towards this tag.
+                    if ((method.DESIRED_TAG_ID < 0) || (detection.id == method.DESIRED_TAG_ID)) {
+                        // Yes, we want to use this tag.
+                        method.targetFound = true;
+                        method.desiredTag = detection;
+                        break;  // don't look any further.
+                    } else {
+                        // This tag is in the library, but we do not want to track it right now.
+                        telemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
+                    }
+                } else {
+                    // This tag is NOT in the library, so we don't have enough information to track to it.
+                    telemetry.addData("Unknown", "Tag ID %d is not in TagLibrary", detection.id);
+                }
+            }
         }
+
+        robot.LiftMotor.setPower(1.0);
+        sleep(250);
+        robot.LiftMotor.setPower(0.0);
+
+        robot.shoulder_right.setPosition(robot.shoulder_right_Up);
+        robot.shoulder_left.setPosition(robot.shoulder_left_Up);
+        sleep(500);
+        robot.wrist_right.setPosition(robot.wrist_right_Score);
+        robot.wrist_left.setPosition(robot.wrist_left_Score);
+        sleep(200);
 
         method.gyroTurn(0.4, 90);
 
-        method.gyroDrive(0.5, -8, 90, 15.0);
+        method.gyroStrafe(0.5, -(method.desiredTag.ftcPose.x-method.DESIRED_DISTANCE_X), 90, 15.0);
+        method.gyroDrive(0.5, method.desiredTag.ftcPose.y-method.DESIRED_DISTANCE+method.right_dis, 90, 15.0);
 
-        while(!method.targetFound) {
+        //method.gyroDrive(0.5, 4, 90, 15.0);
+        sleep(300);
 
-            List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-            for (AprilTagDetection detection : currentDetections) {
-                // Look to see if we have size info on this tag.
-                if (detection.metadata != null) {
-                    //  Check to see if we want to track towards this tag.
-                    if ((method.DESIRED_TAG_ID < 0) || (detection.id == method.DESIRED_TAG_ID)) {
-                        // Yes, we want to use this tag.
-                        method.targetFound = true;
-                        method.desiredTag = detection;
-                        break;  // don't look any further.
-                    } else {
-                        // This tag is in the library, but we do not want to track it right now.
-                        telemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
-                    }
-                } else {
-                    // This tag is NOT in the library, so we don't have enough information to track to it.
-                    telemetry.addData("Unknown", "Tag ID %d is not in TagLibrary", detection.id);
-                }
-            }
-        }
-
-        method.gyroStrafe(0.5, -method.desiredTag.ftcPose.x+method.DESIRED_DISTANCE_X, 90, 15.0);
-        method.gyroDrive(0.5, -method.desiredTag.ftcPose.y+method.DESIRED_DISTANCE, 90, 15.0);
-
-        robot.hand_one.setPosition(0.6);
-        robot.hand_two.setPosition(0.4);
-
-        sleep(1000);
-
-        robot.LiftMotor.setPower(1.0);
-        sleep(400);
-        robot.LiftMotor.setPower(0.0);
-
-        method.gyroDrive(0.5, -4, 90, 15.0);
-        sleep(1000);
-
-        robot.claw_right.setPosition(0.4);
-        robot.claw_left.setPosition(0.6);
+        robot.claw_left.setPosition(robot.claw_left_Open);
 
         sleep(500);
 
-        method.gyroDrive(0.6, 5, 90, 15.0);
+        robot.LiftMotor.setPower(1.0);
+        sleep(120);
+        robot.LiftMotor.setPower(0.0);
 
-        myVisionPortal.setActiveCamera(webcam2);
+        method.gyroDrive(0.6, -7, 90, 15.0);
+        method.gyroStrafe(0.8, -22, 90, 15.0);
 
-        robot.LiftMotor.setPower(0.01);
-        //robot.hand_one.setPosition(0.8);
-        //robot.hand_two.setPosition(0.2);
+        robot.wrist_right.setPosition(robot.wrist_right_Pu);
+        robot.wrist_left.setPosition(robot.wrist_left_Pu);
+        sleep(500);
 
-        method.gyroDrive(0.8, 80, 90, 15.0);
-        method.gyroTurn(0.6, 90);
 
-        method.DESIRED_TAG_ID = 8;
-
-        method.targetFound = false;
-
-        while(!method.targetFound) {
-
-            List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-            for (AprilTagDetection detection : currentDetections) {
-                // Look to see if we have size info on this tag.
-                if (detection.metadata != null) {
-                    //  Check to see if we want to track towards this tag.
-                    if ((method.DESIRED_TAG_ID < 0) || (detection.id == method.DESIRED_TAG_ID)) {
-                        // Yes, we want to use this tag.
-                        method.targetFound = true;
-                        method.desiredTag = detection;
-                        break;  // don't look any further.
-                    } else {
-                        // This tag is in the library, but we do not want to track it right now.
-                        telemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
-                    }
-                } else {
-                    // This tag is NOT in the library, so we don't have enough information to track to it.
-                    telemetry.addData("Unknown", "Tag ID %d is not in TagLibrary", detection.id);
-                }
-            }
-        }
-        method.gyroStrafe(0.5, method.desiredTag.ftcPose.x-3, 90, 15.0);
-        method.gyroDrive(0.5, method.desiredTag.ftcPose.y-25, 90, 15.0);
-
-        robot.LiftMotor.setPower(0);
-
-        }
+    }
 
     /**
      * Initialize AprilTag and TFOD.

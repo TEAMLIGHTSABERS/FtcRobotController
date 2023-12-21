@@ -29,24 +29,14 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.SwitchableLight;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 /**
  * This is NOT an opmode.
@@ -64,7 +54,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  * Servo channel:  Servo to open left claw:  "left_hand"
  * Servo channel:  Servo to open right claw: "right_hand"
  */
-public class NewHardwareMap
+public class NewHardwareMap2
 {
 
 
@@ -110,35 +100,35 @@ public class NewHardwareMap
 
     //position of servos
     //Less is more down
-    public final double shoulder_left_Down = 0.13;
-    public final double shoulder_left_Up = 0.6;
+    public final double shoulder_left_Down = 0.3;
+    public final double shoulder_left_Up = 0.61;  //0.60
     //More is more down
-    public final double shoulder_right_Down = 0.87;
-    public final double shoulder_right_Up = 0.4;
+    public final double shoulder_right_Down = 0.70;
+    public final double shoulder_right_Up = 0.39; //0.4
     //Less is more down
-    public final double wrist_left_Pu = 0.81;
-    public final double wrist_left_Drive = 0.83;
+    public final double wrist_left_Pu = 0.77;    //0.76
+    public final double wrist_left_Drive = 0.79; //0.8
     public final double wrist_left_Score = 0.08;
     //More is more down
     //Right is 2 less than necessary for 1.0
-    public final double wrist_right_Pu = 0.16;
-    public final double wrist_right_Drive = 0.14;
+    public final double wrist_right_Pu = 0.26;    //.027
+    public final double wrist_right_Drive = 0.24; //0.23
     public final double wrist_right_Score = 0.93;
 
     public final double claw_left_Open = 0.35;
     public final double claw_left_Close = 0.25;
 
     public final double claw_right_Open = 0.7;
-    public final double claw_right_Close = 0.75;
+    public final double claw_right_Close = 0.76;  //0.75
 
-    public final double droneVel = 2350;
+    public final double droneVel = 2375;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
     private ElapsedTime period  = new ElapsedTime();
 
     /* Constructor */
-    public NewHardwareMap(){
+    public NewHardwareMap2(){
     }
 
     /* Initialize standard Hardware interfaces */
@@ -172,10 +162,12 @@ public class NewHardwareMap
         LiftMotor = hwMap.dcMotor.get("lift_motor");
         LiftMotor.setDirection(DcMotor.Direction.REVERSE);
         LiftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        LiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LiftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        droneMotor = hwMap.get(DcMotorEx.class,"drone_motor");
+        //droneMotor = hwMap.get(DcMotorEx.class,"drone_motor");
         //droneMotor.setDirection(DcMotor.Direction.REVERSE);
-        droneMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //droneMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         /*Intake1 = hwMap.dcMotor.get("intake_left");
         Intake1.setDirection(DcMotor.Direction.REVERSE);
@@ -187,16 +179,16 @@ public class NewHardwareMap
 
         DuckMotor = hwMap.dcMotor.get("duck_motor"); //left2Motor
         //DuckMotor.setDirection(DcMotor.Direction.REVERSE);
-        DuckMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        DuckMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);*/
 
         // get a reference to our digitalTouch object.
         //digitalTouch = hwMap.get(DigitalChannel.class, "lift_limit");
         touch = hwMap.get(TouchSensor.class, "lift_limit");
-        touch3 = hwMap.get(TouchSensor.class, "lift_limit_up");
+        //touch3 = hwMap.get(TouchSensor.class, "lift_limit_up");
         // set the digital channel to input.
         //digitalTouch.setMode(DigitalChannel.Mode.INPUT);
 
-        sensorRange = hwMap.get(DistanceSensor.class, "sensor_range");
+       /* sensorRange = hwMap.get(DistanceSensor.class, "sensor_range");
          /*public DistanceSensor getSensor() {
              return sensorRange;
          }*/
@@ -211,7 +203,7 @@ public class NewHardwareMap
 
         //pixel = hwMap.servo.get("pixel_servo");
 
-        drone = hwMap.servo.get("drone_servo");
+        //drone = hwMap.servo.get("drone_servo");
 
         //hand_one = hwMap.servo.get("hand_one");
 

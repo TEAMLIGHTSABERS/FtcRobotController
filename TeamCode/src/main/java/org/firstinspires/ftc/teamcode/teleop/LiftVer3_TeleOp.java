@@ -29,17 +29,16 @@
 
 package org.firstinspires.ftc.teamcode.teleop;
 
+import static java.lang.Math.abs;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.RobotLog;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.MethodMap;
-import org.firstinspires.ftc.teamcode.NewHardwareMap;
-import org.firstinspires.ftc.teamcode.vision.CSVisionProcessor;
-import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.teamcode.NewHardwareMap2;
 
 
 /**
@@ -48,21 +47,21 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
  * The names of OpModes appear on the menu of the FTC Driver Station.
  * When an selection is made from the menu, the corresponding OpMode
  * class is instantiated on the Robot Controller and executed.
- *
+ * <p>
  * This particular O;pMode just executes a basic Tank Drive Teleop for a two wheeled robot
  * It includes all the skeletal structure that all iterative OpModes contain.
- *
+ * <p>
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
+@Disabled
+@TeleOp(name="LiftVer3_Teleop", group="Iterative Opmode")
 
-@TeleOp(name="TopDown_Teleop_Seventeen", group="Iterative Opmode")
-
-public class TopDown_TeleOp_Seventeen extends OpMode
+public class LiftVer3_TeleOp extends OpMode
 {
 
     /* Declare OpMode members. */
-    NewHardwareMap robot= new NewHardwareMap(); // use the class created to define Robot hardware
+    NewHardwareMap2 robot= new NewHardwareMap2(); // use the class created to define Robot hardware
     boolean a_pressed = false;
     boolean b_pressed = false;
     boolean x_pressed = false;
@@ -87,13 +86,7 @@ public class TopDown_TeleOp_Seventeen extends OpMode
     double  position_one = 0;
     double  position_two = 0;
     double pressed = 0;
-    int liftposition = 0;
-
-    ElapsedTime mStateTime = new ElapsedTime();
-    int v_state = 0;
-
-    boolean scoring = false;
-
+    int liftPosition = 0;
 
     //double wPower = 0.0;
     /*
@@ -107,16 +100,23 @@ public class TopDown_TeleOp_Seventeen extends OpMode
     public void init() {
         RobotLog.d("LOGGING START");
         robot.init(hardwareMap);
-        //robot.drone.setPosition(0.1);
-        /*robot.wrist_right.setPosition(robot.wrist_right_Pu);
-        robot.wrist_left.setPosition(robot.wrist_left_Pu);
-        robot.shoulder_right.setPosition(robot.shoulder_right_Down);
-        robot.shoulder_left.setPosition(robot.shoulder_left_Down);
+        //robot.drone.setPosition(0.5);
+        //Higher hand one is up
+        //Lower hand two is up
+        /*robot.hand_one.setPosition(1);
+        robot.hand_two.setPosition(0);*/
+
+    }
+
+    @Override
+    public void start() {
         robot.claw_right.setPosition(robot.claw_right_Close);
-        robot.claw_left.setPosition(robot.claw_left_Close);*/
+        robot.claw_left.setPosition(robot.claw_left_Close);
+        //robot.drone.setPosition(0.4);
 
-
-
+        /*robot.LiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.LiftMotor.setTargetPosition(0);
+        robot.LiftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);*/
     }
 
 
@@ -124,14 +124,6 @@ public class TopDown_TeleOp_Seventeen extends OpMode
      * This method will be called repeatedly in a loop
      * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
      */
-
-    @Override
-    public void start() {
-        robot.claw_right.setPosition(robot.claw_right_Close);
-        robot.claw_left.setPosition(robot.claw_left_Close);
-        robot.drone.setPosition(0.4);
-    }
-
     @Override
     public void loop() {
         double power = gamepad1.left_stick_y;
@@ -139,18 +131,23 @@ public class TopDown_TeleOp_Seventeen extends OpMode
         double turn = gamepad1.right_stick_x;
         double left = Range.clip(power - turn, -1.0, 1.0);
         double right = Range.clip(power + turn, -1.0, 1.0);
+        double liftPower;
+
+        if (!robot.touch.isPressed()){
+            robot.LiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.LiftMotor.setTargetPosition(0);
+                    }
 
         // scale the joystick value to make it easier to control
         // the robot more precisely at slower speeds.
         right = (float) scaleInput(right);
         left = (float) scaleInput(left);
 
-        /*
         //Turbo to 100%
         if (gamepad1.x && !x_pressed) {
-            right = Range.clip(right * 1.4, -1.0, 1.0);
-            left = Range.clip(left * 1.4, -1.0, 1.0);
-        }*/
+            right = Range.clip(right , -0.6, 0.6);
+            left = Range.clip(left , -0.6, 0.6);
+        }
 
 
 //(Note: The joystick goes negative when pushed forwards, so negate it for robot to drive forwards.)
@@ -163,31 +160,80 @@ public class TopDown_TeleOp_Seventeen extends OpMode
 
         // Lift Motor Control
         if ((gamepad1.right_bumper) && (gamepad1.right_trigger) < 0.25) {
-
-            robot.LiftMotor.setPower(0.8);   // Lift UP
-        } else if ((gamepad1.right_trigger) > 0.25 && (!gamepad1.right_bumper)) {
-            robot.LiftMotor.setPower(-0.8);  // Lift DOWN
+            liftPower = 0.80;  // Lift UP
+        } else if ((gamepad1.right_trigger) > 0.25 && (!gamepad1.right_bumper) && ((robot.touch.isPressed()))){
+            liftPower = -0.8;  // Lift DOWN
         } else {
-            robot.LiftMotor.setPower(0.0);
-            //x_pressed = true;
+            liftPower = 0.0;   // No command holds position
         }
 
-        if (gamepad1.x && !x_pressed) {
+        /* The lift has pre-designated positions that the operator can choose
+        using the dpad and the YBAX Buttons.  If the dpad "down" is held,
+        then the pre-designated positions are selected:
+
+        Button Combination   : Lift Position
+
+        dpad down + "Y" button :    Third Set Line
+        dpad down + "B" button :    Second Set Line
+        dpad down + "A" button :    First Set Line
+        dpad down + "X" button :    Bottom*/
+
+        if (gamepad1.dpad_down && gamepad1.y)
+        {
+            liftPosition = 3000;
+            robot.LiftMotor.setTargetPosition(liftPosition);
+        }
+
+        if (gamepad1.dpad_down && gamepad1.b)
+        {
+            liftPosition = 2000;
+            robot.LiftMotor.setTargetPosition(liftPosition);
+        }
+
+        if (gamepad1.dpad_down && gamepad1.a)
+        {
+            liftPosition = 1000;
+            robot.LiftMotor.setTargetPosition(liftPosition);
+        }
+
+        if (gamepad1.dpad_down && gamepad1.x)
+        {
+            liftPosition = 10;
+            robot.LiftMotor.setTargetPosition(liftPosition);
+        }
+
+        /* Lift control function uses the encoder to hold the last
+        commanded position.  The lift will not go above 3400
+        counts (lift top is 3550).*/
+
+        int top_stop = 3400;
+        int bottom_stop = 10;
+        liftPosition = motor_setPowerNHold
+                (
+                        robot,
+                        liftPower,
+                        liftPosition,
+                        top_stop,
+                        bottom_stop
+                );
+
+        //Drone
+        /*if (gamepad1.x && !x_pressed) {
             robot.droneMotor.setVelocity(robot.droneVel);
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            robot.drone.setPosition(0.2);
+            robot.drone.setPosition(1.0);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
             robot.droneMotor.setVelocity(0.0);
-            robot.drone.setPosition(0.4);
-        }
+            robot.drone.setPosition(0.5);
+        }*/
 
         if(gamepad1.left_bumper && !bumper_pressed){
             //close both claws
@@ -280,7 +326,7 @@ public class TopDown_TeleOp_Seventeen extends OpMode
 
         //Reset button toggles
         //robot.hand_one.setPosition(position_one);
-         //robot.hand_two.setPosition(position_two);
+        //robot.hand_two.setPosition(position_two);
         if (!gamepad1.a) a_pressed = false;
         if (!gamepad1.b) b_pressed = false;
         if (!gamepad1.x) x_pressed = false;
@@ -288,15 +334,7 @@ public class TopDown_TeleOp_Seventeen extends OpMode
         if (!gamepad1.left_bumper) bumper_pressed = false;
         if ((gamepad1.left_trigger)<0.25) trigger_pressed = false;
 
-        //if (!gamepad2.a) a_pressed = false;
-        //if (!gamepad2.b) b_pressed = false;
-        //if (!gamepad2.x) x_pressed = false;
-        //if (!gamepad2.y) y_pressed = false;
-
-        //telemetry.addData("range", String.format("%.01f cm", robot.sensorRange.getDistance(DistanceUnit.CM)));
-        //telemetry.addData("range", String.format("%.01f in", robot.sensorRange.getDistance(DistanceUnit.INCH)));
-        //RobotLog.d("%.01f cm,%.01f in,",robot.sensorRange.getDistance(DistanceUnit.CM),robot.sensorRange.getDistance(DistanceUnit.INCH));
-    }//loop end
+        }//loop end
 
 
     // Code to Run When Coach Hits STOP
@@ -321,7 +359,7 @@ public class TopDown_TeleOp_Seventeen extends OpMode
         } else if (index > 16) {
             index = 16;
         }
-        double dScale = 0.0;
+        double dScale;
         if (dVal < 0) {
             dScale = -scaleArray[index];
         } else {
@@ -329,4 +367,49 @@ public class TopDown_TeleOp_Seventeen extends OpMode
         }
         return dScale;
     }
+
+    /**
+     * Add Power or Hold a motor in a position.
+     */
+    private int motor_setPowerNHold(NewHardwareMap2 robot, double power, int position, int top_stop, int bottom_stop) {
+
+        // Check that the top or bottom stops have not been exceeded
+        if
+        (
+                (
+                        (position > top_stop)
+                                &&
+                                (power > 0.0)
+                )
+                        ||
+                        (
+                                (position < bottom_stop)
+                                        &&
+                                        (power < 0.0)
+                        )
+        )
+        {
+            power = 0.0;
+        }
+
+        // Check the Hold Condition (power level < 0.1)
+        if (abs(power) > .1) {
+            // If Operator is commanding a change in the lift
+            // position, disable the encoder hold operation,
+            // move the lift, and track the new hold position.
+
+            robot.LiftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.LiftMotor.setPower(power);
+            position = robot.LiftMotor.getCurrentPosition();
+            robot.LiftMotor.setTargetPosition(position);
+        } else {
+            // If Operator is not commanding a change in the
+            // lift position, engage the encoder hold operation
+            // with a strength of 0.2 power level
+            robot.LiftMotor.setPower(0.2);
+            robot.LiftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
+        return position;
+    } // end method motor_PowerNHold()
+
 }

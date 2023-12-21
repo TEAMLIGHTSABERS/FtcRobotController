@@ -33,7 +33,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class MethodMap {
+public class MethodMap2 {
 
     /**
      * These are the variables used in our method map and in our opModes. Call these using method.(variable name)
@@ -43,9 +43,9 @@ public class MethodMap {
     NewHardwareMap robot =   new NewHardwareMap();
 
 
-    IMU               imu;                            // IMU device
-    Orientation             lastAngles = new Orientation();
-    double                  globalAngle, correction;
+     IMU               imu;                            // IMU device
+     Orientation             lastAngles = new Orientation();
+     double                  globalAngle, correction;
 
 
     public ElapsedTime     runtime = new ElapsedTime();
@@ -71,10 +71,9 @@ public class MethodMap {
 
     //pixelPos is equivelant to the correct AprilTagID
     public int pixelPos = 0;
-    public int right_dis = 0;
     //These are the offset numbers for the AprilTag driving
     public final double DESIRED_DISTANCE = 22.0;
-    public final double DESIRED_DISTANCE_X = 5.0; //  this is how close the camera should get to the target (inches)
+    public final double DESIRED_DISTANCE_X = 3.0; //  this is how close the camera should get to the target (inches)
 
     //April Tag Variables
     public static final boolean USE_WEBCAM = true;
@@ -107,7 +106,7 @@ public class MethodMap {
      * but is also then called into our opModes allowing us to send information back and forth between the two classes
      */
 
-    public MethodMap(LinearOpMode opMode, NewHardwareMap hardwareMap, AprilTagProcessor aprilTag,
+    public MethodMap2(LinearOpMode opMode, NewHardwareMap hardwareMap, AprilTagProcessor aprilTag,
                       CSVisionProcessor visionProcessor, VisionPortal myVisionPortal) {
         this.opMode = opMode;
         this.robot = hardwareMap;
@@ -308,46 +307,46 @@ public class MethodMap {
         // Ensure that the opmode is still active
         //while (opMode.opModeIsActive()) {
 
-        //resetEncoders();
-        robot.FmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.FmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.BmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            //resetEncoders();
+            robot.FmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.FmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.BmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        // Determine new target position, and pass to motor controller
-        FLeftTarget  = (int)(-FLeftInches * COUNTS_PER_INCH);
-        FRightTarget = (int)(-FRightInches * COUNTS_PER_INCH);
-        BLeftTarget = (int)(-BLeftInches * COUNTS_PER_INCH);
-        BRightTarget = (int)(-BRightInches * COUNTS_PER_INCH);
-        //FLeftTarget  = robot.FmotorLeft.getCurrentPosition() + (int)(FLeftInches * COUNTS_PER_INCH);
-        //FRightTarget = robot.FmotorRight.getCurrentPosition() + (int)(FRightInches * COUNTS_PER_INCH);
-        //BLeftTarget = robot.BmotorLeft.getCurrentPosition() + (int)(BLeftInches * COUNTS_PER_INCH);
-        //BRightTarget = robot.BmotorRight.getCurrentPosition() + (int)(BRightInches * COUNTS_PER_INCH);
+            // Determine new target position, and pass to motor controller
+            FLeftTarget  = (int)(-FLeftInches * COUNTS_PER_INCH);
+            FRightTarget = (int)(-FRightInches * COUNTS_PER_INCH);
+            BLeftTarget = (int)(-BLeftInches * COUNTS_PER_INCH);
+            BRightTarget = (int)(-BRightInches * COUNTS_PER_INCH);
+            //FLeftTarget  = robot.FmotorLeft.getCurrentPosition() + (int)(FLeftInches * COUNTS_PER_INCH);
+            //FRightTarget = robot.FmotorRight.getCurrentPosition() + (int)(FRightInches * COUNTS_PER_INCH);
+            //BLeftTarget = robot.BmotorLeft.getCurrentPosition() + (int)(BLeftInches * COUNTS_PER_INCH);
+            //BRightTarget = robot.BmotorRight.getCurrentPosition() + (int)(BRightInches * COUNTS_PER_INCH);
 
-        robot.FmotorLeft.setTargetPosition(FLeftTarget);
-        robot.FmotorRight.setTargetPosition(FRightTarget);
-        robot.BmotorLeft.setTargetPosition(BLeftTarget);
-        robot.BmotorRight.setTargetPosition(BRightTarget);
+            robot.FmotorLeft.setTargetPosition(FLeftTarget);
+            robot.FmotorRight.setTargetPosition(FRightTarget);
+            robot.BmotorLeft.setTargetPosition(BLeftTarget);
+            robot.BmotorRight.setTargetPosition(BRightTarget);
 
-        // Turn On RUN_TO_POSITION
-        //positionEncoders();
-        robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.FmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.BmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            // Turn On RUN_TO_POSITION
+            //positionEncoders();
+            robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.FmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.BmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        // Turn off RUN_TO_POSITION
-        //robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //robot.FmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // Turn off RUN_TO_POSITION
+            //robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //robot.FmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        // reset the timeout time and start motion.
-        runtime.reset();
-        robot.FmotorLeft.setPower(Math.abs(speed));
-        robot.FmotorRight.setPower(Math.abs(speed));
-        robot.BmotorLeft.setPower(Math.abs(speed));
-        robot.BmotorRight.setPower(Math.abs(speed));
+            // reset the timeout time and start motion.
+            runtime.reset();
+            robot.FmotorLeft.setPower(Math.abs(speed));
+            robot.FmotorRight.setPower(Math.abs(speed));
+            robot.BmotorLeft.setPower(Math.abs(speed));
+            robot.BmotorRight.setPower(Math.abs(speed));
 
 
             /*if (FLeftInches <0 && FRightInches <0) { //Backwards
@@ -364,42 +363,42 @@ public class MethodMap {
                 robot.BmotorRight.setPower(speed);
             }*/
 
-        // keep looping while we are still active, and there is time left, and both motors are running.
-        // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
-        // its target position, the motion will stop.  This is "safer" in the event that the robot will
-        // always end the motion as soon as possible.
-        // However, if you require that BOTH motors have finished their moves before the robot continues
-        // onto the next step, use (isBusy() || isBusy()) in the loop test.
-        while (opMode.opModeIsActive() &&
-                (runtime.seconds() < timeoutS) &&
-                (robot.FmotorLeft.isBusy() && robot.FmotorRight.isBusy() && robot.BmotorLeft.isBusy() && robot.BmotorRight.isBusy())) {
+            // keep looping while we are still active, and there is time left, and both motors are running.
+            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            // However, if you require that BOTH motors have finished their moves before the robot continues
+            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            while (opMode.opModeIsActive() &&
+                    (runtime.seconds() < timeoutS) &&
+                    (robot.FmotorLeft.isBusy() && robot.FmotorRight.isBusy() && robot.BmotorLeft.isBusy() && robot.BmotorRight.isBusy())) {
 
-            // Display it for the driver.
-            opMode.telemetry.addData("Target: ", "to %7d :%7d :%7d :%7d", FLeftTarget,  FRightTarget, BLeftTarget, BRightTarget);
-            opMode.telemetry.addData("Postion:", "at %7d :%7d :%7d :%7d", robot.FmotorLeft.getCurrentPosition(),
-                    robot.FmotorRight.getCurrentPosition(),robot.BmotorLeft.getCurrentPosition(),
-                    robot.BmotorRight.getCurrentPosition());
-            opMode.telemetry.update();
-            RobotLog.d("%7d,%7d,%7d,%7d,%7d,", FLeftTarget,robot.FmotorLeft.getCurrentPosition(),
-                    robot.FmotorRight.getCurrentPosition(),robot.BmotorLeft.getCurrentPosition(),
-                    robot.BmotorRight.getCurrentPosition());
-        }
+                // Display it for the driver.
+                opMode.telemetry.addData("Target: ", "to %7d :%7d :%7d :%7d", FLeftTarget,  FRightTarget, BLeftTarget, BRightTarget);
+                opMode.telemetry.addData("Postion:", "at %7d :%7d :%7d :%7d", robot.FmotorLeft.getCurrentPosition(),
+                        robot.FmotorRight.getCurrentPosition(),robot.BmotorLeft.getCurrentPosition(),
+                        robot.BmotorRight.getCurrentPosition());
+                opMode.telemetry.update();
+                RobotLog.d("%7d,%7d,%7d,%7d,%7d,", FLeftTarget,robot.FmotorLeft.getCurrentPosition(),
+                        robot.FmotorRight.getCurrentPosition(),robot.BmotorLeft.getCurrentPosition(),
+                        robot.BmotorRight.getCurrentPosition());
+            }
 
-        // Stop all motion;
-        robot.FmotorLeft.setPower(0);
-        robot.FmotorRight.setPower(0);
-        robot.BmotorLeft.setPower(0);
-        robot.BmotorRight.setPower(0);
+            // Stop all motion;
+            robot.FmotorLeft.setPower(0);
+            robot.FmotorRight.setPower(0);
+            robot.BmotorLeft.setPower(0);
+            robot.BmotorRight.setPower(0);
 
 
-        // Turn off RUN_TO_POSITION
-        //resetEncoders();
-        robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.FmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // Turn off RUN_TO_POSITION
+            //resetEncoders();
+            robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.FmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        opMode.sleep(250); // optional pause after each move
+            opMode.sleep(250); // optional pause after each move
 
 
     }
@@ -452,90 +451,90 @@ public class MethodMap {
         // Ensure that the opmode is still active
         //if (opMode.opModeIsActive()) {
 
-        robot.FmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.FmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.BmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.FmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.FmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.BmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        // Determine new target position, and pass to motor controller
-        FLeftTarget  = (int)(-distance * COUNTS_PER_INCH);
-        FRightTarget = (int)(-distance * COUNTS_PER_INCH);
-        BLeftTarget = (int)(-distance * COUNTS_PER_INCH);
-        BRightTarget = (int)(-distance * COUNTS_PER_INCH);
+            // Determine new target position, and pass to motor controller
+            FLeftTarget  = (int)(-distance * COUNTS_PER_INCH);
+            FRightTarget = (int)(-distance * COUNTS_PER_INCH);
+            BLeftTarget = (int)(-distance * COUNTS_PER_INCH);
+            BRightTarget = (int)(-distance * COUNTS_PER_INCH);
 
-        // Set Target and Turn On RUN_TO_POSITION
-        robot.FmotorLeft.setTargetPosition(FLeftTarget);
-        robot.FmotorRight.setTargetPosition(FRightTarget);
-        robot.BmotorLeft.setTargetPosition(BLeftTarget);
-        robot.BmotorRight.setTargetPosition(BRightTarget);
+            // Set Target and Turn On RUN_TO_POSITION
+            robot.FmotorLeft.setTargetPosition(FLeftTarget);
+            robot.FmotorRight.setTargetPosition(FRightTarget);
+            robot.BmotorLeft.setTargetPosition(BLeftTarget);
+            robot.BmotorRight.setTargetPosition(BRightTarget);
 
-        robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.FmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.BmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.FmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.BmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        // start motion.
-        runtime.reset();
-        //speed = Range.clip(Math.abs(speed), 0.0, 1.0);
-        robot.FmotorLeft.setPower(Math.abs(speed));
-        robot.FmotorRight.setPower(Math.abs(speed));
-        robot.BmotorLeft.setPower(Math.abs(speed));
-        robot.BmotorRight.setPower(Math.abs(speed));
+            // start motion.
+            runtime.reset();
+            //speed = Range.clip(Math.abs(speed), 0.0, 1.0);
+            robot.FmotorLeft.setPower(Math.abs(speed));
+            robot.FmotorRight.setPower(Math.abs(speed));
+            robot.BmotorLeft.setPower(Math.abs(speed));
+            robot.BmotorRight.setPower(Math.abs(speed));
 
-        // keep looping while we are still active, and BOTH motors are running.
-        while (opMode.opModeIsActive() &&
-                (runtime.seconds() < timeoutS) &&
-                (robot.FmotorLeft.isBusy() && robot.FmotorRight.isBusy() && robot.BmotorLeft.isBusy() && robot.BmotorRight.isBusy() )) {
+            // keep looping while we are still active, and BOTH motors are running.
+            while (opMode.opModeIsActive() &&
+                    (runtime.seconds() < timeoutS) &&
+                    (robot.FmotorLeft.isBusy() && robot.FmotorRight.isBusy() && robot.BmotorLeft.isBusy() && robot.BmotorRight.isBusy() )) {
 
-            // adjust relative speed based on heading error.
-            error = getError(angle);
-            steer = getSteer(error, P_DRIVE_COEFF);
+                // adjust relative speed based on heading error.
+                error = getError(angle);
+                steer = getSteer(error, P_DRIVE_COEFF);
 
-            // if driving in reverse, the motor correction also needs to be reversed
-            if (distance < 0)
-                steer *= -1.0;
+                // if driving in reverse, the motor correction also needs to be reversed
+                if (distance < 0)
+                    steer *= -1.0;
 
-            leftSpeed = speed - steer;
-            rightSpeed = speed + steer;
+                leftSpeed = speed - steer;
+                rightSpeed = speed + steer;
 
-            // Normalize speeds if either one exceeds +/- 1.0;
-            max = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
-            if (max > 1.0)
-            {
-                leftSpeed /= max;
-                rightSpeed /= max;
+                // Normalize speeds if either one exceeds +/- 1.0;
+                max = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
+                if (max > 1.0)
+                {
+                    leftSpeed /= max;
+                    rightSpeed /= max;
+                }
+
+                robot.FmotorLeft.setPower(leftSpeed);
+                robot.BmotorLeft.setPower(leftSpeed);
+                robot.FmotorRight.setPower(rightSpeed);
+                robot.BmotorRight.setPower(rightSpeed);
+
+                // Display drive status for the driver.
+                opMode.telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
+                opMode.telemetry.addData("Target",  "%7d:%7d:%7d:%7d",      FLeftTarget,  FRightTarget, BLeftTarget,  BRightTarget);
+                opMode.telemetry.addData("Actual",  "%7d:%7d:%7d:%7d",      robot.FmotorLeft.getCurrentPosition(),robot.FmotorRight.getCurrentPosition(),
+                        robot.BmotorLeft.getCurrentPosition(), robot.BmotorRight.getCurrentPosition());
+
+                opMode.telemetry.addData("Speed",   "%5.2f:%5.2f",  leftSpeed, rightSpeed);
+                opMode.telemetry.update();
+                RobotLog.d("%7d,%7d,%7d,%7d,%7d,", FLeftTarget,robot.FmotorLeft.getCurrentPosition(),
+                        robot.FmotorRight.getCurrentPosition(),robot.BmotorLeft.getCurrentPosition(),
+                        robot.BmotorRight.getCurrentPosition());
             }
 
-            robot.FmotorLeft.setPower(leftSpeed);
-            robot.BmotorLeft.setPower(leftSpeed);
-            robot.FmotorRight.setPower(rightSpeed);
-            robot.BmotorRight.setPower(rightSpeed);
+            RobotLog.d("GD STOP");
+            // Stop all motion;
+            robot.FmotorLeft.setPower(0);
+            robot.FmotorRight.setPower(0);
+            robot.BmotorLeft.setPower(0);
+            robot.BmotorRight.setPower(0);
 
-            // Display drive status for the driver.
-            opMode.telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
-            opMode.telemetry.addData("Target",  "%7d:%7d:%7d:%7d",      FLeftTarget,  FRightTarget, BLeftTarget,  BRightTarget);
-            opMode.telemetry.addData("Actual",  "%7d:%7d:%7d:%7d",      robot.FmotorLeft.getCurrentPosition(),robot.FmotorRight.getCurrentPosition(),
-                    robot.BmotorLeft.getCurrentPosition(), robot.BmotorRight.getCurrentPosition());
-
-            opMode.telemetry.addData("Speed",   "%5.2f:%5.2f",  leftSpeed, rightSpeed);
-            opMode.telemetry.update();
-            RobotLog.d("%7d,%7d,%7d,%7d,%7d,", FLeftTarget,robot.FmotorLeft.getCurrentPosition(),
-                    robot.FmotorRight.getCurrentPosition(),robot.BmotorLeft.getCurrentPosition(),
-                    robot.BmotorRight.getCurrentPosition());
-        }
-
-        RobotLog.d("GD STOP");
-        // Stop all motion;
-        robot.FmotorLeft.setPower(0);
-        robot.FmotorRight.setPower(0);
-        robot.BmotorLeft.setPower(0);
-        robot.BmotorRight.setPower(0);
-
-        // Turn off RUN_TO_POSITION
-        robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.FmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // Turn off RUN_TO_POSITION
+            robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.FmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //}
     }
     /*public void gyroDriveLD ( double speed,
@@ -784,119 +783,119 @@ public class MethodMap {
         // Ensure that the opmode is still active
         //if (opMode.opModeIsActive()) {
 
-        robot.FmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.FmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.BmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.FmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.FmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.BmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        // Determine new target position, and pass to motor controller
-        FLeftTarget  = (int)(-distance * COUNTS_PER_INCH);
-        FRightTarget = (int)(-distance * COUNTS_PER_INCH);
-        BLeftTarget = (int)(-distance * COUNTS_PER_INCH);
-        BRightTarget = (int)(-distance * COUNTS_PER_INCH);
+            // Determine new target position, and pass to motor controller
+            FLeftTarget  = (int)(-distance * COUNTS_PER_INCH);
+            FRightTarget = (int)(-distance * COUNTS_PER_INCH);
+            BLeftTarget = (int)(-distance * COUNTS_PER_INCH);
+            BRightTarget = (int)(-distance * COUNTS_PER_INCH);
 
-        // Set Target and Turn On RUN_TO_POSITION
-        robot.FmotorLeft.setTargetPosition(FLeftTarget);
-        robot.FmotorRight.setTargetPosition(FRightTarget);
-        robot.BmotorLeft.setTargetPosition(BLeftTarget);
-        robot.BmotorRight.setTargetPosition(BRightTarget);
+            // Set Target and Turn On RUN_TO_POSITION
+            robot.FmotorLeft.setTargetPosition(FLeftTarget);
+            robot.FmotorRight.setTargetPosition(FRightTarget);
+            robot.BmotorLeft.setTargetPosition(BLeftTarget);
+            robot.BmotorRight.setTargetPosition(BRightTarget);
 
-        robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.FmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.BmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);;
+            robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.FmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.BmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);;
 
-        // start motion.
-        runtime.reset();
-        //speed = Range.clip(Math.abs(speed), 0.0, 1.0);
-        robot.FmotorLeft.setPower(Math.abs(speed));
-        robot.FmotorRight.setPower(Math.abs(speed));
-        robot.BmotorLeft.setPower(Math.abs(speed));
-        robot.BmotorRight.setPower(Math.abs(speed));
+            // start motion.
+            runtime.reset();
+            //speed = Range.clip(Math.abs(speed), 0.0, 1.0);
+            robot.FmotorLeft.setPower(Math.abs(speed));
+            robot.FmotorRight.setPower(Math.abs(speed));
+            robot.BmotorLeft.setPower(Math.abs(speed));
+            robot.BmotorRight.setPower(Math.abs(speed));
 
-        // keep looping while we are still active, and BOTH motors are running.
-        while (opMode.opModeIsActive() &&
-                (runtime.seconds() < timeoutS) &&
-                (robot.FmotorLeft.isBusy() && robot.FmotorRight.isBusy() && robot.BmotorLeft.isBusy() && robot.BmotorRight.isBusy() )) {
+            // keep looping while we are still active, and BOTH motors are running.
+            while (opMode.opModeIsActive() &&
+                    (runtime.seconds() < timeoutS) &&
+                    (robot.FmotorLeft.isBusy() && robot.FmotorRight.isBusy() && robot.BmotorLeft.isBusy() && robot.BmotorRight.isBusy() )) {
 
-            // adjust relative speed based on heading error.
-            error = getError(angle);
-            steer = getSteer(error, P_DRIVE_COEFF);
+                // adjust relative speed based on heading error.
+                error = getError(angle);
+                steer = getSteer(error, P_DRIVE_COEFF);
 
-            // if driving in reverse, the motor correction also needs to be reversed
-            if (distance < 0)
-                steer *= -1.0;
+                // if driving in reverse, the motor correction also needs to be reversed
+                if (distance < 0)
+                    steer *= -1.0;
 
-            leftSpeed = speed - steer;
-            rightSpeed = speed + steer;
+                leftSpeed = speed - steer;
+                rightSpeed = speed + steer;
 
-            //Acc and Decc is here.
-            CurrPos=Math.abs((robot.FmotorLeft.getCurrentPosition() + robot.FmotorRight.getCurrentPosition()))/2/COUNTS_PER_INCH;
-            tempLeftSpeed = leftSpeed;
-            tempRightSpeed = rightSpeed;
+                //Acc and Decc is here.
+                CurrPos=Math.abs((robot.FmotorLeft.getCurrentPosition() + robot.FmotorRight.getCurrentPosition()))/2/COUNTS_PER_INCH;
+                tempLeftSpeed = leftSpeed;
+                tempRightSpeed = rightSpeed;
                 /*if (CurrPos < 1)
                 {
                     leftSpeed  = 0.2;
                     rightSpeed = 0.2;
                 }*/
-            if (CurrPos < 3)
-            {
-                leftSpeed  = tempLeftSpeed * CurrPos / 3;
-                rightSpeed = tempRightSpeed * CurrPos / 3;
-            }
+                if (CurrPos < 3)
+                {
+                    leftSpeed  = tempLeftSpeed * CurrPos / 3;
+                    rightSpeed = tempRightSpeed * CurrPos / 3;
+                }
                 /*else if  (distance - CurrPos < 1)
                 {
                     leftSpeed  = 0.2;
                     rightSpeed = 0.2;
                 }*/
-            else if ((distance - CurrPos) < 3)
-            {
-                leftSpeed  = tempLeftSpeed * (distance - CurrPos) / 3;
-                rightSpeed = tempRightSpeed * (distance - CurrPos) / 3;
+                else if ((distance - CurrPos) < 3)
+                {
+                    leftSpeed  = tempLeftSpeed * (distance - CurrPos) / 3;
+                    rightSpeed = tempRightSpeed * (distance - CurrPos) / 3;
+                }
+                else
+                {
+                    //Default full speed
+                }
+
+                // Normalize speeds if either one exceeds +/- 1.0;
+                max = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
+                if (max > 1.0)
+                {
+                    leftSpeed /= max;
+                    rightSpeed /= max;
+                }
+
+                robot.FmotorLeft.setPower(leftSpeed);
+                robot.BmotorLeft.setPower(leftSpeed);
+                robot.FmotorRight.setPower(rightSpeed);
+                robot.BmotorRight.setPower(rightSpeed);
+
+                // Display drive status for the driver.
+                opMode.telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
+                opMode.telemetry.addData("Target",  "%7d:%7d:%7d:%7d",      FLeftTarget,  FRightTarget, BLeftTarget,  BRightTarget);
+                opMode.telemetry.addData("Actual",  "%7d:%7d:%7d:%7d",      robot.FmotorLeft.getCurrentPosition(),robot.FmotorRight.getCurrentPosition(),
+                        robot.BmotorLeft.getCurrentPosition(), robot.BmotorRight.getCurrentPosition());
+
+                opMode.telemetry.addData("Speed",   "%5.2f:%5.2f",  leftSpeed, rightSpeed);
+                opMode.telemetry.update();
+                RobotLog.d("%7d,%7d,%7d,%7d,%7d,%5.2f:%5.2f", FLeftTarget,robot.FmotorLeft.getCurrentPosition(),
+                        robot.FmotorRight.getCurrentPosition(),robot.BmotorLeft.getCurrentPosition(),
+                        robot.BmotorRight.getCurrentPosition(), leftSpeed, rightSpeed);
             }
-            else
-            {
-                //Default full speed
-            }
 
-            // Normalize speeds if either one exceeds +/- 1.0;
-            max = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
-            if (max > 1.0)
-            {
-                leftSpeed /= max;
-                rightSpeed /= max;
-            }
+            RobotLog.d("GD STOP");
+            // Stop all motion;
+            robot.FmotorLeft.setPower(0);
+            robot.FmotorRight.setPower(0);
+            robot.BmotorLeft.setPower(0);
+            robot.BmotorRight.setPower(0);
 
-            robot.FmotorLeft.setPower(leftSpeed);
-            robot.BmotorLeft.setPower(leftSpeed);
-            robot.FmotorRight.setPower(rightSpeed);
-            robot.BmotorRight.setPower(rightSpeed);
-
-            // Display drive status for the driver.
-            opMode.telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
-            opMode.telemetry.addData("Target",  "%7d:%7d:%7d:%7d",      FLeftTarget,  FRightTarget, BLeftTarget,  BRightTarget);
-            opMode.telemetry.addData("Actual",  "%7d:%7d:%7d:%7d",      robot.FmotorLeft.getCurrentPosition(),robot.FmotorRight.getCurrentPosition(),
-                    robot.BmotorLeft.getCurrentPosition(), robot.BmotorRight.getCurrentPosition());
-
-            opMode.telemetry.addData("Speed",   "%5.2f:%5.2f",  leftSpeed, rightSpeed);
-            opMode.telemetry.update();
-            RobotLog.d("%7d,%7d,%7d,%7d,%7d,%5.2f:%5.2f", FLeftTarget,robot.FmotorLeft.getCurrentPosition(),
-                    robot.FmotorRight.getCurrentPosition(),robot.BmotorLeft.getCurrentPosition(),
-                    robot.BmotorRight.getCurrentPosition(), leftSpeed, rightSpeed);
-        }
-
-        RobotLog.d("GD STOP");
-        // Stop all motion;
-        robot.FmotorLeft.setPower(0);
-        robot.FmotorRight.setPower(0);
-        robot.BmotorLeft.setPower(0);
-        robot.BmotorRight.setPower(0);
-
-        // Turn off RUN_TO_POSITION
-        robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.FmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // Turn off RUN_TO_POSITION
+            robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.FmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //}
     }
 
@@ -920,96 +919,96 @@ public class MethodMap {
         // Ensure that the opmode is still active
         //if (opMode.opModeIsActive()) {
 
-        robot.FmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.FmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.BmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.FmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.FmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.BmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        // Determine new target position, and pass to motor controller
-        FLeftTarget  = (int)(distance * COUNTS_PER_INCH);
-        FRightTarget = (int)(-distance * COUNTS_PER_INCH);
-        BLeftTarget = (int)(-distance * COUNTS_PER_INCH);
-        BRightTarget = (int)(distance * COUNTS_PER_INCH);
+            // Determine new target position, and pass to motor controller
+            FLeftTarget  = (int)(distance * COUNTS_PER_INCH);
+            FRightTarget = (int)(-distance * COUNTS_PER_INCH);
+            BLeftTarget = (int)(-distance * COUNTS_PER_INCH);
+            BRightTarget = (int)(distance * COUNTS_PER_INCH);
 
-        // Set Target and Turn On RUN_TO_POSITION
-        robot.FmotorLeft.setTargetPosition(FLeftTarget);
-        robot.FmotorRight.setTargetPosition(FRightTarget);
-        robot.BmotorLeft.setTargetPosition(BLeftTarget);
-        robot.BmotorRight.setTargetPosition(BRightTarget);
+            // Set Target and Turn On RUN_TO_POSITION
+            robot.FmotorLeft.setTargetPosition(FLeftTarget);
+            robot.FmotorRight.setTargetPosition(FRightTarget);
+            robot.BmotorLeft.setTargetPosition(BLeftTarget);
+            robot.BmotorRight.setTargetPosition(BRightTarget);
 
-        robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.FmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.BmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);;
+            robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.FmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.BmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);;
 
-        // start motion.
-        runtime.reset();
-        //speed = Range.clip(Math.abs(speed), 0.0, 1.0);
-        robot.FmotorLeft.setPower(Math.abs(speed));
-        robot.FmotorRight.setPower(Math.abs(speed));
-        robot.BmotorLeft.setPower(Math.abs(speed));
-        robot.BmotorRight.setPower(Math.abs(speed));
+            // start motion.
+            runtime.reset();
+            //speed = Range.clip(Math.abs(speed), 0.0, 1.0);
+            robot.FmotorLeft.setPower(Math.abs(speed));
+            robot.FmotorRight.setPower(Math.abs(speed));
+            robot.BmotorLeft.setPower(Math.abs(speed));
+            robot.BmotorRight.setPower(Math.abs(speed));
 
-        // keep looping while we are still active, and BOTH motors are running.
-        while (opMode.opModeIsActive() &&
-                (runtime.seconds() < timeoutS) &&
-                (robot.FmotorLeft.isBusy() && robot.FmotorRight.isBusy() && robot.BmotorLeft.isBusy() && robot.BmotorRight.isBusy() )) {
+            // keep looping while we are still active, and BOTH motors are running.
+            while (opMode.opModeIsActive() &&
+                    (runtime.seconds() < timeoutS) &&
+                    (robot.FmotorLeft.isBusy() && robot.FmotorRight.isBusy() && robot.BmotorLeft.isBusy() && robot.BmotorRight.isBusy() )) {
 
-            // adjust relative speed based on heading error.
-            error = getError(angle);
-            steer = getSteer(error, P_DRIVE_COEFF);
+                // adjust relative speed based on heading error.
+                error = getError(angle);
+                steer = getSteer(error, P_DRIVE_COEFF);
 
-            // if driving in reverse, the motor correction also needs to be reversed
-            if (distance < 0)
-                steer *= -1.0;
+                // if driving in reverse, the motor correction also needs to be reversed
+                if (distance < 0)
+                    steer *= -1.0;
 
-            frontSpeed = speed - steer;
-            backSpeed = speed + steer;
+                frontSpeed = speed - steer;
+                backSpeed = speed + steer;
 
-            // Normalize speeds if either one exceeds +/- 1.0;
-            max = Math.max(Math.abs(frontSpeed), Math.abs(backSpeed));
-            if (max > 1.0)
-            {
-                frontSpeed /= max;
-                backSpeed /= max;
+                // Normalize speeds if either one exceeds +/- 1.0;
+                max = Math.max(Math.abs(frontSpeed), Math.abs(backSpeed));
+                if (max > 1.0)
+                {
+                    frontSpeed /= max;
+                    backSpeed /= max;
+                }
+
+                robot.FmotorLeft.setPower(frontSpeed);
+                robot.BmotorLeft.setPower(backSpeed);
+                robot.FmotorRight.setPower(frontSpeed);
+                robot.BmotorRight.setPower(backSpeed);
+
+                // Display drive status for the driver.
+                opMode.telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
+                opMode.telemetry.addData("Target",  "%7d:%7d:%7d:%7d",      FLeftTarget,  FRightTarget, BLeftTarget,  BRightTarget);
+                opMode.telemetry.addData("Actual",  "%7d:%7d:%7d:%7d",      robot.FmotorLeft.getCurrentPosition(),
+                        robot.FmotorRight.getCurrentPosition(), robot.BmotorLeft.getCurrentPosition(),
+                        robot.BmotorRight.getCurrentPosition());
+                opMode.telemetry.addData("Speed",   "%5.2f:%5.2f",  frontSpeed, backSpeed);
+                opMode.telemetry.update();
+                RobotLog.d("%7d,%7d,%7d,%7d,%7d,", FLeftTarget,robot.FmotorLeft.getCurrentPosition(),
+                        robot.FmotorRight.getCurrentPosition(),robot.BmotorLeft.getCurrentPosition(),
+                        robot.BmotorRight.getCurrentPosition());
             }
 
-            robot.FmotorLeft.setPower(frontSpeed);
-            robot.BmotorLeft.setPower(backSpeed);
-            robot.FmotorRight.setPower(frontSpeed);
-            robot.BmotorRight.setPower(backSpeed);
+            RobotLog.d("GS STOP");
+            // Stop all motion;
+            robot.FmotorLeft.setPower(0);
+            robot.FmotorRight.setPower(0);
+            robot.BmotorLeft.setPower(0);
+            robot.BmotorRight.setPower(0);
 
-            // Display drive status for the driver.
-            opMode.telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
-            opMode.telemetry.addData("Target",  "%7d:%7d:%7d:%7d",      FLeftTarget,  FRightTarget, BLeftTarget,  BRightTarget);
-            opMode.telemetry.addData("Actual",  "%7d:%7d:%7d:%7d",      robot.FmotorLeft.getCurrentPosition(),
-                    robot.FmotorRight.getCurrentPosition(), robot.BmotorLeft.getCurrentPosition(),
-                    robot.BmotorRight.getCurrentPosition());
-            opMode.telemetry.addData("Speed",   "%5.2f:%5.2f",  frontSpeed, backSpeed);
-            opMode.telemetry.update();
-            RobotLog.d("%7d,%7d,%7d,%7d,%7d,", FLeftTarget,robot.FmotorLeft.getCurrentPosition(),
-                    robot.FmotorRight.getCurrentPosition(),robot.BmotorLeft.getCurrentPosition(),
-                    robot.BmotorRight.getCurrentPosition());
-        }
-
-        RobotLog.d("GS STOP");
-        // Stop all motion;
-        robot.FmotorLeft.setPower(0);
-        robot.FmotorRight.setPower(0);
-        robot.BmotorLeft.setPower(0);
-        robot.BmotorRight.setPower(0);
-
-        // Turn off RUN_TO_POSITION
-        robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.FmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // Turn off RUN_TO_POSITION
+            robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.FmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //}
     }
 
     public void gyroAprilStrafe ( double speed,
-                                  double distance,
-                                  double angle, double timeoutS, int DESIRED_TAG_ID) {
+                             double distance,
+                             double angle, double timeoutS, int DESIRED_TAG_ID) {
 
         RobotLog.d("GS START");
         int FLeftTarget;
@@ -1168,68 +1167,68 @@ public class MethodMap {
         // Ensure that the opmode is still active
         //if (opMode.opModeIsActive()) {
 
-        robot.FmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.FmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.BmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.FmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.FmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.BmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        // Determine new target position, and pass to motor controller
-        FLeftTarget  = (int)(-distance * COUNTS_PER_INCH);
-        FRightTarget = (int)(distance * COUNTS_PER_INCH);
-        BLeftTarget = (int)(distance * COUNTS_PER_INCH);
-        BRightTarget = (int)(-distance * COUNTS_PER_INCH);
+            // Determine new target position, and pass to motor controller
+            FLeftTarget  = (int)(-distance * COUNTS_PER_INCH);
+            FRightTarget = (int)(distance * COUNTS_PER_INCH);
+            BLeftTarget = (int)(distance * COUNTS_PER_INCH);
+            BRightTarget = (int)(-distance * COUNTS_PER_INCH);
 
-        // Set Target and Turn On RUN_TO_POSITION
-        robot.FmotorLeft.setTargetPosition(FLeftTarget);
-        robot.FmotorRight.setTargetPosition(FRightTarget);
-        robot.BmotorLeft.setTargetPosition(BLeftTarget);
-        robot.BmotorRight.setTargetPosition(BRightTarget);
+            // Set Target and Turn On RUN_TO_POSITION
+            robot.FmotorLeft.setTargetPosition(FLeftTarget);
+            robot.FmotorRight.setTargetPosition(FRightTarget);
+            robot.BmotorLeft.setTargetPosition(BLeftTarget);
+            robot.BmotorRight.setTargetPosition(BRightTarget);
 
-        robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.FmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.BmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);;
+            robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.FmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.BmotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);;
 
-        // start motion.
-        runtime.reset();
-        //speed = Range.clip(Math.abs(speed), 0.0, 1.0);
-        robot.FmotorLeft.setPower(Math.abs(speed));
-        robot.FmotorRight.setPower(Math.abs(speed));
-        robot.BmotorLeft.setPower(Math.abs(speed));
-        robot.BmotorRight.setPower(Math.abs(speed));
+            // start motion.
+            runtime.reset();
+            //speed = Range.clip(Math.abs(speed), 0.0, 1.0);
+            robot.FmotorLeft.setPower(Math.abs(speed));
+            robot.FmotorRight.setPower(Math.abs(speed));
+            robot.BmotorLeft.setPower(Math.abs(speed));
+            robot.BmotorRight.setPower(Math.abs(speed));
 
-        //sensorNum = robot.sensorRange.getDistance(DistanceUnit.CM);
+            //sensorNum = robot.sensorRange.getDistance(DistanceUnit.CM);
 
-        // keep looping while we are still active, and BOTH motors are running.
-        while (opMode.opModeIsActive() && (sensorNum > 20 ) &&
-                (runtime.seconds() < timeoutS) &&
-                (robot.FmotorLeft.isBusy() && robot.FmotorRight.isBusy() && robot.BmotorLeft.isBusy() && robot.BmotorRight.isBusy() )) {
+            // keep looping while we are still active, and BOTH motors are running.
+            while (opMode.opModeIsActive() && (sensorNum > 20 ) &&
+                    (runtime.seconds() < timeoutS) &&
+                    (robot.FmotorLeft.isBusy() && robot.FmotorRight.isBusy() && robot.BmotorLeft.isBusy() && robot.BmotorRight.isBusy() )) {
 
-            // adjust relative speed based on heading error.
-            error = getError(angle);
-            steer = getSteer(error, P_DRIVE_COEFF);
+                // adjust relative speed based on heading error.
+                error = getError(angle);
+                steer = getSteer(error, P_DRIVE_COEFF);
 
-            // if driving in reverse, the motor correction also needs to be reversed
-            if (distance < 0)
-                steer *= -1.0;
+                // if driving in reverse, the motor correction also needs to be reversed
+                if (distance < 0)
+                    steer *= -1.0;
 
-            frontSpeed = speed - steer;
-            backSpeed = speed + steer;
+                frontSpeed = speed - steer;
+                backSpeed = speed + steer;
 
-            // Normalize speeds if either one exceeds +/- 1.0;
-            max = Math.max(Math.abs(frontSpeed), Math.abs(backSpeed));
-            if (max > 1.0)
-            {
-                frontSpeed /= max;
-                backSpeed /= max;
-            }
+                // Normalize speeds if either one exceeds +/- 1.0;
+                max = Math.max(Math.abs(frontSpeed), Math.abs(backSpeed));
+                if (max > 1.0)
+                {
+                    frontSpeed /= max;
+                    backSpeed /= max;
+                }
 
-            robot.FmotorLeft.setPower(frontSpeed);
-            robot.BmotorLeft.setPower(backSpeed);
-            robot.FmotorRight.setPower(frontSpeed);
-            robot.BmotorRight.setPower(backSpeed);
+                robot.FmotorLeft.setPower(frontSpeed);
+                robot.BmotorLeft.setPower(backSpeed);
+                robot.FmotorRight.setPower(frontSpeed);
+                robot.BmotorRight.setPower(backSpeed);
 
-            // Display drive status for the driver.
+                // Display drive status for the driver.
                     /*telemetry.addData("Err/St",  "%5.1f/%5.1f",  error, steer);
                     telemetry.addData("Target",  "%7d:%7d:%7d:%7d",      FLeftTarget,  FRightTarget, BLeftTarget,  BRightTarget);
                     telemetry.addData("Actual",  "%7d:%7d:%7d:%7d",      robot.FmotorLeft.getCurrentPosition(),
@@ -1241,30 +1240,30 @@ public class MethodMap {
                                                              robot.FmotorRight.getCurrentPosition(),robot.BmotorLeft.getCurrentPosition(),
                                                              robot.BmotorRight.getCurrentPosition());*/
 
-            //telemetry.addData("deviceName",robot.sensorRange.getDeviceName() );
-            //telemetry.addData("range", String.format("%.01f cm", robot.sensorRange.getDistance(DistanceUnit.CM)));
-            //telemetry.addData("range", String.format("%.01f in", robot.sensorRange.getDistance(DistanceUnit.INCH)));
+                //telemetry.addData("deviceName",robot.sensorRange.getDeviceName() );
+                //telemetry.addData("range", String.format("%.01f cm", robot.sensorRange.getDistance(DistanceUnit.CM)));
+                //telemetry.addData("range", String.format("%.01f in", robot.sensorRange.getDistance(DistanceUnit.INCH)));
 
-            sensorNum = robot.sensorRange.getDistance(DistanceUnit.CM);
-            sensorNumIn = (sensorNum/2.54);
+                sensorNum = robot.sensorRange.getDistance(DistanceUnit.CM);
+                sensorNumIn = (sensorNum/2.54);
 
-            RobotLog.d("%.01f cm,%.01f in,",robot.sensorRange.getDistance(DistanceUnit.CM),robot.sensorRange.getDistance(DistanceUnit.INCH));
+                RobotLog.d("%.01f cm,%.01f in,",robot.sensorRange.getDistance(DistanceUnit.CM),robot.sensorRange.getDistance(DistanceUnit.INCH));
 
-            //telemetry.update();
-        }
+                //telemetry.update();
+            }
 
-        RobotLog.d("GS STOP");
-        // Stop all motion;
-        robot.FmotorLeft.setPower(0);
-        robot.FmotorRight.setPower(0);
-        robot.BmotorLeft.setPower(0);
-        robot.BmotorRight.setPower(0);
+            RobotLog.d("GS STOP");
+            // Stop all motion;
+            robot.FmotorLeft.setPower(0);
+            robot.FmotorRight.setPower(0);
+            robot.BmotorLeft.setPower(0);
+            robot.BmotorRight.setPower(0);
 
-        // Turn off RUN_TO_POSITION
-        robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.FmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // Turn off RUN_TO_POSITION
+            robot.FmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.FmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.BmotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.BmotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //}
     }
 
