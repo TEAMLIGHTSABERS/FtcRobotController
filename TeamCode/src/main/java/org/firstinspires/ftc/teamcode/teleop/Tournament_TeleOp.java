@@ -29,13 +29,13 @@
 
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.firstinspires.ftc.teamcode.NewHardwareMap2;
+import org.firstinspires.ftc.teamcode.NewHardwareMap;
 
 
 /**
@@ -51,14 +51,13 @@ import org.firstinspires.ftc.teamcode.NewHardwareMap2;
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
-@Disabled
-@TeleOp(name="LiftVer2_Teleop", group="Iterative Opmode")
+@TeleOp(name="Tournament_TeleOp", group="Iterative Opmode")
 
-public class LiftVer2_TeleOp extends OpMode
+public class Tournament_TeleOp extends OpMode
 {
 
     /* Declare OpMode members. */
-    NewHardwareMap2 robot= new NewHardwareMap2(); // use the class created to define Robot hardware
+    NewHardwareMap robot= new NewHardwareMap(); // use the class created to define Robot hardware
     boolean a_pressed = false;
     boolean b_pressed = false;
     boolean x_pressed = false;
@@ -83,6 +82,13 @@ public class LiftVer2_TeleOp extends OpMode
     double  position_one = 0;
     double  position_two = 0;
     double pressed = 0;
+    int liftposition = 0;
+
+    ElapsedTime mStateTime = new ElapsedTime();
+    int v_state = 0;
+
+    boolean scoring = false;
+
 
     //double wPower = 0.0;
     /*
@@ -96,16 +102,6 @@ public class LiftVer2_TeleOp extends OpMode
     public void init() {
         RobotLog.d("LOGGING START");
         robot.init(hardwareMap);
-        //robot.drone.setPosition(0.5);
-        //Higher hand one is up
-        //Lower hand two is up
-        /*robot.hand_one.setPosition(1);
-        robot.hand_two.setPosition(0);*/
-
-        robot.claw_right.setPosition(robot.claw_right_Close);
-        robot.claw_left.setPosition(robot.claw_left_Close);
-
-
     }
 
 
@@ -113,6 +109,20 @@ public class LiftVer2_TeleOp extends OpMode
      * This method will be called repeatedly in a loop
      * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
      */
+
+    @Override
+    public void start() {
+        robot.claw_right.setPosition(robot.claw_right_Close);
+        robot.claw_left.setPosition(robot.claw_left_Close);
+        robot.shoulder_right.setPosition(robot.shoulder_right_Down);
+        robot.shoulder_left.setPosition(robot.shoulder_left_Down);
+        robot.wrist_right.setPosition(robot.wrist_right_Drive);
+        robot.wrist_left.setPosition(robot.wrist_left_Drive);
+        robot.drone.setPosition(0.4);
+        //robot.LiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //robot.LiftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
     @Override
     public void loop() {
         double power = gamepad1.left_stick_y;
@@ -126,11 +136,18 @@ public class LiftVer2_TeleOp extends OpMode
         right = (float) scaleInput(right);
         left = (float) scaleInput(left);
 
+        /*if (!robot.touch.isPressed()){
+            robot.LiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            //robot.LiftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //robot.LiftMotor.setTargetPosition(0);
+        }*/
+
+        /*
         //Turbo to 100%
         if (gamepad1.x && !x_pressed) {
-            right = Range.clip(right , -0.6, 0.6);
-            left = Range.clip(left , -0.6, 0.6);
-        }
+            right = Range.clip(right * 1.4, -1.0, 1.0);
+            left = Range.clip(left * 1.4, -1.0, 1.0);
+        }*/
 
 
 //(Note: The joystick goes negative when pushed forwards, so negate it for robot to drive forwards.)
@@ -143,51 +160,51 @@ public class LiftVer2_TeleOp extends OpMode
 
         // Lift Motor Control
         if ((gamepad1.right_bumper) && (gamepad1.right_trigger) < 0.25) {
-            robot.LiftMotor.setPower(0.60);   // Lift UP
-        } else if ((gamepad1.right_trigger) > 0.25 && (!gamepad1.right_bumper) && (robot.touch.isPressed())){
+
+            robot.LiftMotor.setPower(0.8);   // Lift UP
+        } else if ((gamepad1.right_trigger) > 0.25 && (!gamepad1.right_bumper) && ((robot.touch.isPressed()))) {
             robot.LiftMotor.setPower(-0.8);  // Lift DOWN
         } else {
-            robot.LiftMotor.setPower(0.05);  //prevent drifting down
+            robot.LiftMotor.setPower(0.05);
             //x_pressed = true;
         }
 
-        //Drone
-        /*if (gamepad1.x && !x_pressed) {
+        if (gamepad1.x && !x_pressed) {
             robot.droneMotor.setVelocity(robot.droneVel);
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            robot.drone.setPosition(1.0);
+            robot.drone.setPosition(0.2);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
             robot.droneMotor.setVelocity(0.0);
-            robot.drone.setPosition(0.5);
-        }*/
+            robot.drone.setPosition(0.4);
+        }
 
         if(gamepad1.left_bumper && !bumper_pressed){
             //close both claws
             if((robot.claw_right.getPosition()<(robot.claw_right_Open+0.05))&&(robot.claw_left.getPosition()>(robot.claw_left_Open-0.05))){
-                robot.wrist_right.setPosition(robot.wrist_right_Pu);
+                /*robot.wrist_right.setPosition(robot.wrist_right_Pu);
                 robot.wrist_left.setPosition(robot.wrist_left_Pu);
                 try {
                     Thread.sleep(200);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
-                }
+                }*/
                 robot.claw_left.setPosition(robot.claw_left_Close);
                 robot.claw_right.setPosition(robot.claw_right_Close);
-                try {
+                /*try {
                     Thread.sleep(200);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
                 robot.wrist_right.setPosition(robot.wrist_right_Drive);
-                robot.wrist_left.setPosition(robot.wrist_left_Drive);
+                robot.wrist_left.setPosition(robot.wrist_left_Drive);*/
                 //open left claw only
             }else if ((robot.claw_left.getPosition()>(robot.claw_left_Close-0.05))){
                 robot.claw_left.setPosition(robot.claw_left_Open);
@@ -211,44 +228,35 @@ public class LiftVer2_TeleOp extends OpMode
             if (robot.shoulder_right.getPosition()<(robot.shoulder_right_Up+0.05)) { //pickup position
                 robot.wrist_right.setPosition(robot.wrist_right_Drive);
                 robot.wrist_left.setPosition(robot.wrist_left_Drive);
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                robot.shoulder_right.setPosition(robot.shoulder_right_Down);
-                robot.shoulder_left.setPosition(robot.shoulder_left_Down);
+                mStateTime.reset();
+                robot.up = false;
             }else if(robot.shoulder_right.getPosition()>(robot.shoulder_right_Down-0.05)){ //scoring position
                 robot.shoulder_right.setPosition(robot.shoulder_right_Up);
                 robot.shoulder_left.setPosition(robot.shoulder_left_Up);
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                robot.wrist_right.setPosition(robot.wrist_right_Score);
-                robot.wrist_left.setPosition(robot.wrist_left_Score);
-
+                mStateTime.reset();
+                robot.up = true;
             }
             b_pressed = true;
+        }
+
+        if (mStateTime.time() >= 0.5 && b_pressed && !robot.up) {
+            robot.shoulder_right.setPosition(robot.shoulder_right_Down);
+            robot.shoulder_left.setPosition(robot.shoulder_left_Down);
+            if (!gamepad1.b) b_pressed = false;
+        } else if (mStateTime.time() >= 0.5 && b_pressed && robot.up) {
+            robot.wrist_right.setPosition(robot.wrist_right_Score);
+            robot.wrist_left.setPosition(robot.wrist_left_Score);
+            if (!gamepad1.b) b_pressed = false;
         }
 
         if(gamepad1.y && !y_pressed) {
             if((robot.claw_right.getPosition()<(robot.claw_right_Open+0.05))&&(robot.claw_left.getPosition()>(robot.claw_left_Open-0.05))) {
                 robot.wrist_right.setPosition(robot.wrist_right_Pu);
                 robot.wrist_left.setPosition(robot.wrist_left_Pu);
-                try {
-                    Thread.sleep(300);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                delay(250);
                 robot.claw_left.setPosition(robot.claw_left_Close);
                 robot.claw_right.setPosition(robot.claw_right_Close);
-                try {
-                    Thread.sleep(300);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                delay(250);
                 robot.wrist_right.setPosition(robot.wrist_right_Drive);
                 robot.wrist_left.setPosition(robot.wrist_left_Drive);
             }else if ((robot.claw_right.getPosition()<(robot.claw_right_Close)+0.05)&&(robot.claw_left.getPosition()>(robot.claw_left_Close-0.05))){
@@ -258,17 +266,58 @@ public class LiftVer2_TeleOp extends OpMode
             y_pressed = true;
         }
 
+        /*if(gamepad1.y && !y_pressed) {
+            if((robot.claw_right.getPosition()<(robot.claw_right_Open+0.05))&&(robot.claw_left.getPosition()>(robot.claw_left_Open-0.05))) {
+                robot.wrist_right.setPosition(robot.wrist_right_Pu);
+                robot.wrist_left.setPosition(robot.wrist_left_Pu);
+                mStateTime.reset();
+            }else if ((robot.claw_right.getPosition()<(robot.claw_right_Close)+0.05)&&(robot.claw_left.getPosition()>(robot.claw_left_Close-0.05))){
+                robot.claw_left.setPosition(robot.claw_left_Open);
+                robot.claw_right.setPosition(robot.claw_right_Open);
+                robot.hand_open = true;
+            }
+            y_pressed = true;
+        }
+
+
+        if (mStateTime.time() >= 0.3 && y_pressed && !robot.hand_open) {
+            robot.claw_left.setPosition(robot.claw_left_Close);
+            robot.claw_right.setPosition(robot.claw_right_Close);
+            robot.hand_close = true;
+        }
+
+        else if (mStateTime.time() >= 0.8 && y_pressed && robot.hand_close) {
+            robot.wrist_right.setPosition(robot.wrist_right_Drive);
+            robot.wrist_left.setPosition(robot.wrist_left_Drive);
+            robot.hand_close = false;
+            if (!gamepad1.y) y_pressed = false;
+        }
+
+        else if(robot.hand_open && y_pressed) {
+            y_pressed = false;
+            robot.hand_open = false;
+        }*/
+
         //Reset button toggles
         //robot.hand_one.setPosition(position_one);
-        //robot.hand_two.setPosition(position_two);
+         //robot.hand_two.setPosition(position_two);
+
         if (!gamepad1.a) a_pressed = false;
-        if (!gamepad1.b) b_pressed = false;
+        //if (!gamepad1.b) b_pressed = false;
         if (!gamepad1.x) x_pressed = false;
         if (!gamepad1.y) y_pressed = false;
         if (!gamepad1.left_bumper) bumper_pressed = false;
         if ((gamepad1.left_trigger)<0.25) trigger_pressed = false;
 
-        }//loop end
+        //if (!gamepad2.a) a_pressed = false;
+        //if (!gamepad2.b) b_pressed = false;
+        //if (!gamepad2.x) x_pressed = false;
+        //if (!gamepad2.y) y_pressed = false;
+
+        //telemetry.addData("range", String.format("%.01f cm", robot.sensorRange.getDistance(DistanceUnit.CM)));
+        //telemetry.addData("range", String.format("%.01f in", robot.sensorRange.getDistance(DistanceUnit.INCH)));
+        //RobotLog.d("%.01f cm,%.01f in,",robot.sensorRange.getDistance(DistanceUnit.CM),robot.sensorRange.getDistance(DistanceUnit.INCH));
+    }//loop end
 
 
     // Code to Run When Coach Hits STOP
@@ -282,6 +331,14 @@ public class LiftVer2_TeleOp extends OpMode
      * scaled value is less than linear.  This is to make it easier to drive
      * the robot more precisely at slower speeds.
      */
+
+    public void delay(long millisToDelay) {
+        long loopStartTimeInMillis = System.currentTimeMillis();
+        while(System.currentTimeMillis() < loopStartTimeInMillis+millisToDelay) {
+
+        }
+    }
+
     double scaleInput(double dVal)  {
         double[] scaleArray = { 0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.20,
                 //0.30, 0.40, 0.50, 0.55, 0.60, 0.65, 0.7, 0.75, 0.75};
@@ -301,6 +358,4 @@ public class LiftVer2_TeleOp extends OpMode
         }
         return dScale;
     }
-
-
 }
