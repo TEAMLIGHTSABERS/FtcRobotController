@@ -54,7 +54,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
  * Servo channel:  Servo to open left claw:  "left_hand"
  * Servo channel:  Servo to open right claw: "right_hand"
  */
-public class NewHardwareMap2
+public class OldHardwareMap
 {
 
 
@@ -100,35 +100,37 @@ public class NewHardwareMap2
 
     //position of servos
     //Less is more down
-    public final double shoulder_left_Down = 0.3;
-    public final double shoulder_left_Up = 0.61;  //0.60
+    public final double shoulder_left_Down = 0.13;
+    public final double shoulder_left_Up = 0.6;
     //More is more down
-    public final double shoulder_right_Down = 0.70;
-    public final double shoulder_right_Up = 0.39; //0.4
+    public final double shoulder_right_Down = 0.87;
+    public final double shoulder_right_Up = 0.4;
     //Less is more down
-    public final double wrist_left_Pu = 0.77;    //0.76
-    public final double wrist_left_Drive = 0.79; //0.8
+    public final double wrist_left_Pu = 0.81;
+    public final double wrist_left_Drive = 0.83;
     public final double wrist_left_Score = 0.08;
     //More is more down
     //Right is 2 less than necessary for 1.0
-    public final double wrist_right_Pu = 0.26;    //.027
-    public final double wrist_right_Drive = 0.24; //0.23
+    public final double wrist_right_Pu = 0.16;
+    public final double wrist_right_Drive = 0.14;
     public final double wrist_right_Score = 0.93;
 
     public final double claw_left_Open = 0.35;
     public final double claw_left_Close = 0.25;
 
     public final double claw_right_Open = 0.7;
-    public final double claw_right_Close = 0.76;  //0.75
+    public final double claw_right_Close = 0.8;
 
     public final double droneVel = 2375;
+
+    public boolean up = true;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
     private ElapsedTime period  = new ElapsedTime();
 
     /* Constructor */
-    public NewHardwareMap2(){
+    public OldHardwareMap(){
     }
 
     /* Initialize standard Hardware interfaces */
@@ -183,7 +185,7 @@ public class NewHardwareMap2
 
         // get a reference to our digitalTouch object.
         //digitalTouch = hwMap.get(DigitalChannel.class, "lift_limit");
-        touch = hwMap.get(TouchSensor.class, "lift_limit");
+        //touch = hwMap.get(TouchSensor.class, "lift_limit");
         //touch3 = hwMap.get(TouchSensor.class, "lift_limit_up");
         // set the digital channel to input.
         //digitalTouch.setMode(DigitalChannel.Mode.INPUT);

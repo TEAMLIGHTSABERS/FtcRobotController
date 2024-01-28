@@ -13,9 +13,9 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 public class CSVisionProcessor implements VisionProcessor {
-    public Rect rectLeft = new Rect(180, 208, 60, 70);
-    public Rect rectMiddle = new Rect(385, 180, 50, 60);
-    public Rect rectRight = new Rect(580, 190, 55, 70);
+    public Rect rectLeft = new Rect(180, 243, 60, 70);
+    public Rect rectMiddle = new Rect(385, 215, 50, 60);
+    public Rect rectRight = new Rect(580, 225, 55, 70);
     public Selected selection = Selected.NONE;
 
     //back right wheel outside edge to front of mat under rigging is 4 5/8 inches

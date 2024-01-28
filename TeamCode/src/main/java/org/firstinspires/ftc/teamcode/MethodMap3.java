@@ -1,13 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.IMU;
-
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -22,9 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-
 import org.firstinspires.ftc.teamcode.vision.CSVisionProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -33,7 +28,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class MethodMap {
+public class MethodMap3 {
 
     /**
      * These are the variables used in our method map and in our opModes. Call these using method.(variable name)
@@ -43,7 +38,7 @@ public class MethodMap {
     NewHardwareMap robot =   new NewHardwareMap();
 
 
-    IMU               imu;                            // IMU device
+    BNO055IMU               imu;                            // IMU device
     Orientation             lastAngles = new Orientation();
     double                  globalAngle, correction;
 
@@ -72,11 +67,9 @@ public class MethodMap {
     //pixelPos is equivelant to the correct AprilTagID
     public int pixelPos = 0;
     public int right_dis = 0;
-    public int left_strafe = 0;
-    public int right_forward;
     //These are the offset numbers for the AprilTag driving
-    public final double DESIRED_DISTANCE = 24.0;
-    public final double DESIRED_DISTANCE_X = 4.0; //  this is how close the camera should get to the target (inches)
+    public final double DESIRED_DISTANCE = 22.0;
+    public final double DESIRED_DISTANCE_X = 3.0; //  this is how close the camera should get to the target (inches)
 
     //April Tag Variables
     public static final boolean USE_WEBCAM = true;
@@ -109,7 +102,7 @@ public class MethodMap {
      * but is also then called into our opModes allowing us to send information back and forth between the two classes
      */
 
-    public MethodMap(LinearOpMode opMode, NewHardwareMap hardwareMap, AprilTagProcessor aprilTag,
+    public MethodMap3(LinearOpMode opMode, NewHardwareMap hardwareMap, AprilTagProcessor aprilTag,
                       CSVisionProcessor visionProcessor, VisionPortal myVisionPortal) {
         this.opMode = opMode;
         this.robot = hardwareMap;
@@ -117,25 +110,27 @@ public class MethodMap {
         this.visionProcessor = visionProcessor;
         this.myVisionPortal = myVisionPortal;
 
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
+        /*RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
         RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
-        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);*/
 
-        /*parameters.mode                = IMU.SensorMode.IMU;
-        parameters.angleUnit           = IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled      = false;*/
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
-        imu = opMode.hardwareMap.get(IMU.class, "imu");
+        parameters.mode                = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled      = false;
 
-        IMU.Parameters parameters = new IMU.Parameters(orientationOnRobot);
+        imu = opMode.hardwareMap.get(BNO055IMU.class, "imu");
+
+        //IMU.Parameters parameters = new IMU.Parameters(orientationOnRobot);
 
         imu.initialize(parameters);
 
         opMode.telemetry.addData("Mode", "calibrating...");
         opMode.telemetry.update();
 
-        imu.resetYaw();
+        //imu.resetYaw();
 
         robot.FmotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.FmotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -1379,13 +1374,13 @@ public class MethodMap {
 
         double robotError;
 
-        YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
-        //Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        //YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
         // calculate error in -179 to +180 range  (
-        //robotError = targetAngle - angles.firstAngle;
+        robotError = targetAngle - angles.firstAngle;
 
-        robotError = targetAngle - angles.getYaw(AngleUnit.DEGREES);
+        //robotError = targetAngle - angles.getYaw(AngleUnit.DEGREES);
         while (robotError > 180)  robotError -= 360;
         while (robotError <= -180) robotError += 360;
         return robotError;

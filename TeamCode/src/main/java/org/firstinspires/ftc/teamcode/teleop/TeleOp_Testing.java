@@ -38,7 +38,7 @@ import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.RobotLog;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.NewHardwareMap2;
+import org.firstinspires.ftc.teamcode.OldHardwareMap;
 
 
 /**
@@ -55,13 +55,13 @@ import org.firstinspires.ftc.teamcode.NewHardwareMap2;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 @Disabled
-@TeleOp(name="LiftVer3_Teleop", group="Iterative Opmode")
+@TeleOp(name="TeleOp_Testing", group="Iterative Opmode")
 
-public class LiftVer3_TeleOp extends OpMode
+public class TeleOp_Testing extends OpMode
 {
 
     /* Declare OpMode members. */
-    NewHardwareMap2 robot= new NewHardwareMap2(); // use the class created to define Robot hardware
+    OldHardwareMap robot= new OldHardwareMap(); // use the class created to define Robot hardware
     boolean a_pressed = false;
     boolean b_pressed = false;
     boolean x_pressed = false;
@@ -208,14 +208,7 @@ public class LiftVer3_TeleOp extends OpMode
 
         int top_stop = 3400;
         int bottom_stop = 10;
-        liftPosition = motor_setPowerNHold
-                (
-                        robot,
-                        liftPower,
-                        liftPosition,
-                        top_stop,
-                        bottom_stop
-                );
+        liftPosition = motor_setPowerNHold(robot, liftPower, liftPosition, top_stop, bottom_stop);
 
         //Drone
         /*if (gamepad1.x && !x_pressed) {
@@ -371,23 +364,10 @@ public class LiftVer3_TeleOp extends OpMode
     /**
      * Add Power or Hold a motor in a position.
      */
-    private int motor_setPowerNHold(NewHardwareMap2 robot, double power, int position, int top_stop, int bottom_stop) {
+    private int motor_setPowerNHold(OldHardwareMap robot, double power, int position, int top_stop, int bottom_stop) {
 
         // Check that the top or bottom stops have not been exceeded
-        if
-        (
-                (
-                        (position > top_stop)
-                                &&
-                                (power > 0.0)
-                )
-                        ||
-                        (
-                                (position < bottom_stop)
-                                        &&
-                                        (power < 0.0)
-                        )
-        )
+        if(((position > top_stop) && (power > 0.0)) || ((position < bottom_stop) && (power < 0.0)))
         {
             power = 0.0;
         }

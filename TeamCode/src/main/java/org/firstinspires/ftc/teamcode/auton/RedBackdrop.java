@@ -30,7 +30,6 @@
 package org.firstinspires.ftc.teamcode.auton;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -73,17 +72,17 @@ import java.util.concurrent.TimeUnit;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
-@Disabled
-@Autonomous(name="Pixel_Place_April_Test")
 
-public class PixelPlaceAprilTest extends LinearOpMode {
+@Autonomous(name="RedBackdrop", preselectTeleOp = "Tournament_TeleOp")
+
+public class RedBackdrop extends LinearOpMode {
     //Put variables and classes here
     NewHardwareMap robot =   new NewHardwareMap();
 
     /*
      * Variables used for switching cameras.
      */
-    /*private WebcamName webcam1, webcam2;
+    private WebcamName webcam1, webcam2;
 
     /**
      * The variable to store our instance of the AprilTag processor.
@@ -100,13 +99,11 @@ public class PixelPlaceAprilTest extends LinearOpMode {
      */
     private VisionPortal myVisionPortal;
 
-
-
-    /*private static int DESIRED_TAG_ID = -1; // Choose the tag you want to approach or set to -1 for ANY tag.
+    private static int DESIRED_TAG_ID = -1; // Choose the tag you want to approach or set to -1 for ANY tag.
 
     private AprilTagDetection desiredTag = null; // Used to hold the data for a detected AprilTag
 
-    private boolean targetFound = false;*/
+    private boolean targetFound = false;
 
     @Override
     public void runOpMode() {
@@ -116,89 +113,83 @@ public class PixelPlaceAprilTest extends LinearOpMode {
 
         robot.init(hardwareMap);
         MethodMap method = new MethodMap(this, robot, aprilTag, visionProcessor, myVisionPortal);
-
-
-        //Initialize the Servoes
-        robot.pixel.setPosition(0.75);
-        robot.drone.setPosition(0.1);
-        robot.claw_right.setPosition(0.5);
-        robot.claw_left.setPosition(0.5);
+        robot.claw_right.setPosition(robot.claw_right_Close);
+        robot.claw_left.setPosition(robot.claw_left_Close);
+        robot.shoulder_right.setPosition(robot.shoulder_right_Down);
+        robot.shoulder_left.setPosition(robot.shoulder_left_Down);
+        robot.drone.setPosition(0.4);
 
 
         method.initDoubleVision();
 
-        while (opModeInInit()) {
+        while (!isStopRequested() && opModeInInit()) {
             telemetry.addData("Identified", method.visionProcessor.getSelection());
             telemetry.update();
         }
 
         waitForStart();
-
-
-        //Initialize the Hand
-        robot.hand_one.setPosition(1);
-        robot.hand_two.setPosition(0);
-        sleep(300);
+        robot.wrist_right.setPosition(robot.wrist_right_Drive);
+        robot.wrist_left.setPosition(robot.wrist_left_Drive);
 
         telemetry.addData("Identified", method.visionProcessor.getSelection());
 
         //Deliver the pixel to the correct spike mark
         method.myVisionPortal.setProcessorEnabled(method.visionProcessor, false);
 
-        method.DESIRED_TAG_ID = 2;
-        method.gyroDrive(0.8, -8, 0, 15.0);
-        method.gyroStrafe(0.8, -45, 0, 15.0);
-        //method.gyroAprilStrafe(0.6, -45, 0, 15.0, method.pixelPos);
+        method.gyroDrive(0.4, 5, 0, 15.0);
 
-        //Switch Statement for position specific action
-        /*switch (method.visionProcessor.getSelection()) {
-            case LEFT:
-                method.DESIRED_TAG_ID = 1;
-                method.gyroDrive(0.8, -27, 0, 15.0);
-                method.gyroTurn(0.6, 90);
-                method.gyroDrive(0.4, -20, 90, 15.0);
+        switch (method.visionProcessor.getSelection()) {
+            case RIGHT:
+                method.DESIRED_TAG_ID = 6;
+                method.pixelPos = -8;
+                method.right_dis = 2;
+                method.gyroStrafe(0.6, -15, 0, 15.0);
+                method.gyroDrive(0.8, 13, 0, 15.0);
+                robot.claw_left.setPosition(robot.claw_left_Open);
+                method.gyroDrive(0.4, -5, 0, 15.0);
+                robot.claw_left.setPosition(robot.claw_left_Close);
+                method.gyroTurn(0.6, -90);
+                method.gyroDrive(0.4, 10, -90, 15.0);
+                //method.gyroStrafe(0.4, 15, -90, 15.0);
+                method.gyroTurn(0.6, -90);
 
                 break;
-            case RIGHT:
-                method.DESIRED_TAG_ID = 3;
-                method.pixelPos = 1;
-                method.gyroDrive(0.8, -26, 0, 15.0);
+            case LEFT:
+                method.DESIRED_TAG_ID = 4;
+                method.pixelPos = 5;
+                method.right_dis = 2;
+                method.gyroDrive(0.8, 22, 0, 15.0);
                 method.gyroTurn(0.6, 90);
-                method.gyroDrive(0.8, 4, 90, 15.0);
+                robot.claw_left.setPosition(robot.claw_left_Open);
+                method.gyroDrive(0.8, -5, 90, 15.0);
+                method.gyroTurn(0.6, 0);
+                robot.claw_left.setPosition(robot.claw_left_Close);
+                method.gyroTurn(0.6, -90);
+                method.gyroDrive(0.6, 20, -90, 15.0);
+                //method.gyroStrafe(0.4, 10, -90, 15.0);
+                method.gyroTurn(0.6, -90);
 
                 break;
             case MIDDLE:
-                method.DESIRED_TAG_ID = 2;
-                method.pixelPos = 2;
-                method.gyroDrive(0.8, -28, 0, 15.0);
-                method.gyroDrive(0.4, -17, 0, 15.0);
+                method.DESIRED_TAG_ID = 5;
+                method.gyroStrafe(0.6, -8, 0, 15.0);
+                method.gyroDrive(0.8, 22, 0, 15.0);
+                robot.claw_left.setPosition(robot.claw_left_Open);
+                method.gyroDrive(0.4, -5, 0, 15.0);
+                robot.claw_left.setPosition(robot.claw_left_Close);
+                method.gyroTurn(0.6, -90);
+                method.gyroDrive(0.4, 12, -90, 15.0);
+                //method.gyroStrafe(0.6, 10, -90, 15.0);
 
-        };
-
-        sleep(500);
-        robot.pixel.setPosition(0.2);
-        sleep(500);
-
-        //Drive to backdrop and deliver the yellow pixel to the correct spot
-        if(method.pixelPos == 2) {
-            //method.gyroTurn(0.4, 90);
-            method.gyroDrive(0.8, 24, 0, 15.0);
-        } else if (method.pixelPos == 1) {
-            method.gyroDrive(0.8, -22, 90, 15.0);
-            method.gyroTurn(0.4, 90);
-            method.gyroStrafe(0.6, -13, 90, 15.0);
-            sleep(200);
         }
 
-        method.gyroTurn(0.4, 90);
-        //sleep(5000);
-        method.gyroDrive(0.5, -8, 90, 15.0);
+        robot.wrist_right.setPosition(robot.wrist_right_Drive);
+        robot.wrist_left.setPosition(robot.wrist_left_Drive);
 
-        //myVisionPortal.setProcessorEnabled(aprilTag, true);
-        //setManualExposure(1, 250);  // Use low exposure time to reduce motion blur
+        //Drive to backdrop and deliver the yellow pixel to the correct spot
 
-        sleep(1000);*/
-        while (!method.targetFound) {
+        while(!method.targetFound && opModeIsActive()) {
+
             List<AprilTagDetection> currentDetections = method.aprilTag.getDetections();
             for (AprilTagDetection detection : currentDetections) {
                 // Look to see if we have size info on this tag.
@@ -220,51 +211,76 @@ public class PixelPlaceAprilTest extends LinearOpMode {
             }
         }
 
-
-        method.gyroStrafe(0.5, -method.desiredTag.ftcPose.x+method.DESIRED_DISTANCE_X, 0, 15.0);
-        method.gyroDrive(0.5, -method.desiredTag.ftcPose.y+method.DESIRED_DISTANCE, 0, 15.0);
-
-        /*robot.hand_one.setPosition(0.6);
-        robot.hand_two.setPosition(0.4);
-
-        sleep(1000);
-
         robot.LiftMotor.setPower(1.0);
-        sleep(400);
-        robot.LiftMotor.setPower(0.0);
+        sleep(350);
+        robot.LiftMotor.setPower(0.05);
 
-        method.gyroDrive(0.5, -4, 90, 15.0);
-        sleep(1000);
+        robot.shoulder_right.setPosition(robot.shoulder_right_Up);
+        robot.shoulder_left.setPosition(robot.shoulder_left_Up);
+        sleep(500);
+        robot.wrist_right.setPosition(robot.wrist_right_Score);
+        robot.wrist_left.setPosition(robot.wrist_left_Score);
+        sleep(200);
 
-        robot.claw_one.setPosition(0.4);
-        robot.claw_two.setPosition(0.6);
+        method.gyroTurn(0.4, -90);
+
+        method.gyroStrafe(0.5, -(method.desiredTag.ftcPose.x-method.DESIRED_DISTANCE_X-method.right_dis), -90, 15.0);
+        method.gyroDrive(0.5, method.desiredTag.ftcPose.y-method.DESIRED_DISTANCE + method.right_dis, -90, 15.0);
+
+
+        /*robot.LiftMotor.setPower(1.0);
+        sleep(350);
+        robot.LiftMotor.setPower(0.0);*/
+
+        //method.gyroDrive(0.5, 4, -90, 15.0);
+        sleep(300);
+
+        robot.claw_right.setPosition(robot.claw_right_Open);
+
 
         sleep(500);
 
-        method.gyroDrive(0.5, 5, 90, 15.0);*/
+        robot.LiftMotor.setPower(1.0);
+        sleep(150);
+        robot.LiftMotor.setPower(0.05);
 
+        method.gyroDrive(0.6, -7, -90, 15.0);
+        method.gyroTurn(0.4, -90);
+        method.gyroStrafe(0.8, 26-method.pixelPos, -90, 15.0);
+
+        robot.wrist_right.setPosition(robot.wrist_right_Pu);
+        robot.wrist_left.setPosition(robot.wrist_left_Pu);
+        sleep(500);
+        robot.claw_right.setPosition(robot.claw_right_Close);
+        robot.claw_left.setPosition(robot.claw_left_Close);
+        sleep(500);
+        robot.shoulder_right.setPosition(robot.shoulder_right_Down);
+        robot.shoulder_left.setPosition(robot.shoulder_left_Down);
+        sleep(500);
+        while(robot.touch.isPressed() && opModeIsActive()) {
+            robot.LiftMotor.setPower(-0.8);
+        }
+        robot.LiftMotor.setPower(0);
+
+        //method.gyroDrive(0.8, 7, -90, 15.0);
+        method.gyroTurn(0.4, 90);
+        method.gyroDrive(0.8, -15, 90, 15.0);
+
+        sleep(2000);
 
         }
+
+
 
     /**
      * Initialize AprilTag and TFOD.
      */
-    /*private void initDoubleVision() {
+    private void initDoubleVision() {
         // -----------------------------------------------------------------------------------------
         // AprilTag Configuration
         // -----------------------------------------------------------------------------------------
 
         aprilTag = new AprilTagProcessor.Builder().build();
-
-        // Adjust Image Decimation to trade-off detection-range for detection-rate.
-        // eg: Some typical detection data using a Logitech C920 WebCam
-        // Decimation = 1 ..  Detect 2" Tag from 10 feet away at 10 Frames per second
-        // Decimation = 2 ..  Detect 2" Tag from 6  feet away at 22 Frames per second
-        // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second
-        // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second
-        // Note: Decimation can be changed on-the-fly to adapt during a match.
-
-        aprilTag.setDecimation(3);
 
         // -----------------------------------------------------------------------------------------
         // OpenCV Configuration
@@ -278,8 +294,8 @@ public class PixelPlaceAprilTest extends LinearOpMode {
 
 
         //Switched for speed, needs to be fixed!
-        webcam2 = hardwareMap.get(WebcamName.class, "Webcam 1");
-        webcam1 = hardwareMap.get(WebcamName.class, "Webcam 2");
+        webcam1 = hardwareMap.get(WebcamName.class, "Webcam 1");
+        webcam2 = hardwareMap.get(WebcamName.class, "Webcam 2");
         CameraName switchableCamera = ClassFactory.getInstance()
                 .getCameraManager().nameForSwitchableCamera(webcam1, webcam2);
 
@@ -293,7 +309,7 @@ public class PixelPlaceAprilTest extends LinearOpMode {
     /**
      * Add telemetry about AprilTag detections.
      */
-    /*private void telemetryAprilTag() {
+    private void telemetryAprilTag() {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         telemetry.addData("# AprilTags Detected", currentDetections.size());
 
@@ -312,11 +328,7 @@ public class PixelPlaceAprilTest extends LinearOpMode {
 
     }   // end method telemetryAprilTag()
 
-    /*
-    Manually set the camera gain and exposure.
-    This can only be called AFTER calling initAprilTag(), and only works for Webcams;
-   */
-    /*private void    setManualExposure(int exposureMS, int gain) {
+    private void    setManualExposure(int exposureMS, int gain) {
         // Wait for the camera to be open, then use the controls
 
         if (myVisionPortal == null) {
@@ -348,7 +360,7 @@ public class PixelPlaceAprilTest extends LinearOpMode {
             gainControl.setGain(gain);
             sleep(20);
         }
-    }*/
+    }
 
 }
 
