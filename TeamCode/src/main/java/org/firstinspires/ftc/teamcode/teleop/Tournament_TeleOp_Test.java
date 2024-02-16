@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -54,11 +55,11 @@ import org.firstinspires.ftc.teamcode.NewHardwareMap;
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
-
+@Disabled
 @Config
-@TeleOp(name="Tournament_TeleOp", group="Iterative Opmode")
+@TeleOp(name="Tournament_TeleOp_Test", group="Iterative Opmode")
 
-public class Tournament_TeleOp extends OpMode
+public class Tournament_TeleOp_Test extends OpMode
 {
 
     /* Declare OpMode members. */
@@ -108,7 +109,17 @@ public class Tournament_TeleOp extends OpMode
 
     DroneState droneState; //Variable to hold the current state of the drone launcher.
 
+    //Enum Variable to represent different states of the intake
+    public enum ArmState {
+        ARM_START,
+        DOWN,
+        SCORE
+    }
+
+    ArmState armState; //Variable to hold the current state of the arm.
+
     public ElapsedTime mStateTime = new ElapsedTime();
+    public ElapsedTime armTimer = new ElapsedTime();
     public ElapsedTime intakeTimer = new ElapsedTime(); //timer for intake movements
     public ElapsedTime droneTimer = new ElapsedTime(); //timer for drone launcher movements
 
@@ -135,6 +146,8 @@ public class Tournament_TeleOp extends OpMode
         intState = IntState.DRIVE;
         droneTimer.reset();
         droneState = DroneState.START;
+        armTimer.reset();
+        armState = ArmState.ARM_START;
 
         dashboard = FtcDashboard.getInstance();
     }
@@ -154,8 +167,6 @@ public class Tournament_TeleOp extends OpMode
         robot.wrist_right.setPosition(robot.wrist_right_Drive);
         robot.wrist_left.setPosition(robot.wrist_left_Drive);
         robot.drone.setPosition(0.4);
-        //robot.LiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //robot.LiftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     @Override
@@ -187,7 +198,7 @@ public class Tournament_TeleOp extends OpMode
         robot.BmotorRight.setPower(right + strafe);
 
 
-        // Lift Motor Control (right bumper: up, right trigger: down)
+        // Lift Motor Control
         if ((gamepad1.right_bumper) && (gamepad1.right_trigger) < 0.25) {
 
             robot.LiftMotor.setPower(0.8);   // Lift UP
@@ -199,9 +210,13 @@ public class Tournament_TeleOp extends OpMode
             telemetry.addData("Lift Position", liftposition);
         } else {
             robot.LiftMotor.setPower(0.05);
+            //x_pressed = true;
         }
 
-        // Reset Lift Encoder when the lift is down and touch sensor is activated
+        if(gamepad1.a && !a_pressed && ((robot.touch.isPressed()))) {
+            robot.LiftMotor.setPower(-1.0);  // Lift DOWN for hang
+        }
+
         if(!robot.touch.isPressed()){
             robot.LiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.LiftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -209,12 +224,7 @@ public class Tournament_TeleOp extends OpMode
             telemetry.addData("Lift Position", liftposition);
         }
 
-        // Button press for high powered lift for hanging (a button)
-        if(gamepad1.a && !a_pressed && ((robot.touch.isPressed()))) {
-            robot.LiftMotor.setPower(-1.0);  // Lift DOWN for hang
-        }
-
-        // Drone Launcher code (x button)
+        // Drone Launcher code
         /*if (gamepad1.x && !x_pressed) {
             robot.droneMotor.setVelocity(robot.droneVel);
 
@@ -233,6 +243,7 @@ public class Tournament_TeleOp extends OpMode
             robot.droneMotor.setVelocity(0.0);
             robot.drone.setPosition(0.4);
         }*/
+
         switch(droneState){
             case START:
                 if(gamepad1.x && !x_pressed){
@@ -257,28 +268,35 @@ public class Tournament_TeleOp extends OpMode
                 break;
         }
 
-        //Close both fingers or open left finger only (left bumper)
+        //Close both fingers or open left finger only
         if(gamepad1.left_bumper && !bumper_pressed){
-            if((robot.claw_right.getPosition()<(robot.claw_right_Open+0.05))&&(robot.claw_left.getPosition()>(robot.claw_left_Open-0.05))){ //close both fingers
-                closeFingers();
-            }else if ((robot.claw_left.getPosition()>(robot.claw_left_Close-0.05))){ //open left finger only
+            //close both claws
+            if((robot.claw_right.getPosition()<(robot.claw_right_Open+0.05))&&(robot.claw_left.getPosition()>(robot.claw_left_Open-0.05))){
+
+                robot.claw_left.setPosition(robot.claw_left_Close);
+                robot.claw_right.setPosition(robot.claw_right_Close);
+
+                //open left claw only
+            }else if ((robot.claw_left.getPosition()>(robot.claw_left_Close-0.05))){
                 robot.claw_left.setPosition(robot.claw_left_Open);
             }
             bumper_pressed = true;
         }
 
-        //Open and close right finger only (left trigger)
+        //Open and close right finger only
         if((gamepad1.left_trigger) > 0.25 && !trigger_pressed){
-            if(robot.claw_right.getPosition()<(robot.claw_right_Close)+0.05){ //open right finger only
+            //open right claw only
+            if(robot.claw_right.getPosition()<(robot.claw_right_Close)+0.05){
                 robot.claw_right.setPosition(robot.claw_right_Open);
-            }else if(robot.claw_right.getPosition()<(robot.claw_right_Open+0.05)){ //close right finger only
+                //close right claw only
+            }else if(robot.claw_right.getPosition()<(robot.claw_right_Open+0.05)){
                 robot.claw_right.setPosition(robot.claw_right_Close);
             }
             trigger_pressed = true;
         }
 
-        //Move shoulder and wrist between drive and scoring position (b button)
-        if(gamepad1.b && !b_pressed) {
+        //Move shoulder and wrist between drive and scoring position
+        /*if(gamepad1.b && !b_pressed) {
             if (robot.shoulder_right.getPosition()<(robot.shoulder_right_Up+0.05)) { //pickup position
                 // wrist up and then shoulder down
                 robot.wrist_right.setPosition(robot.wrist_right_Drive);
@@ -303,9 +321,40 @@ public class Tournament_TeleOp extends OpMode
             robot.wrist_right.setPosition(robot.wrist_right_Score);
             robot.wrist_left.setPosition(robot.wrist_left_Score);
             if (!gamepad1.b) b_pressed = false;
+        }*/
+
+        switch(armState){
+            case ARM_START:
+                if(gamepad1.b && !b_pressed) {
+                    if (robot.shoulder_right.getPosition()<(robot.shoulder_right_Up+0.05)) { //pickup position
+                        // wrist up and then shoulder down
+                        wristDrive();
+                        armTimer.reset();
+                        armState = ArmState.DOWN;
+                    }else if(robot.shoulder_right.getPosition()>(robot.shoulder_right_Down-0.05)){ //scoring position
+                        // shoulder up and then wrist down
+                        shoulderUp();
+                        armTimer.reset();
+                        armState = ArmState.SCORE;
+                    }
+                    b_pressed = true;
+                }
+                break;
+            case SCORE:
+                if(armTimer.milliseconds() >= 500){
+                    wristScore();
+                    armState = ArmState.ARM_START;
+                }
+                break;
+            case DOWN:
+                if(armTimer.milliseconds() >= 500){
+                    shoulderDown();
+                    armState = ArmState.ARM_START;
+                }
+                break;
         }
 
-        //Move fingers down  and close to pick up pixels (y button)
+        //Move fingers down  and close to pick up pixels
         /*if(gamepad1.y && !y_pressed) {
             if((robot.claw_right.getPosition()<(robot.claw_right_Open+0.05))&&(robot.claw_left.getPosition()>(robot.claw_left_Open-0.05))) {
                 robot.wrist_right.setPosition(robot.wrist_right_Pu);
@@ -322,6 +371,7 @@ public class Tournament_TeleOp extends OpMode
             }
             y_pressed = true;
         }*/
+
         switch(intState){
             case DRIVE:
                 if(gamepad1.y && !y_pressed){
@@ -393,6 +443,21 @@ public class Tournament_TeleOp extends OpMode
     private void wristDrive(){
         robot.wrist_right.setPosition(robot.wrist_right_Drive);
         robot.wrist_left.setPosition(robot.wrist_left_Drive);
+    }
+
+    private void wristScore(){
+        robot.wrist_right.setPosition(robot.wrist_right_Score);
+        robot.wrist_left.setPosition(robot.wrist_left_Score);
+    }
+
+    private void shoulderUp(){
+        robot.shoulder_right.setPosition(robot.shoulder_right_Up);
+        robot.shoulder_left.setPosition(robot.shoulder_left_Up);
+    }
+
+    private void shoulderDown(){
+        robot.shoulder_right.setPosition(robot.shoulder_right_Down);
+        robot.shoulder_left.setPosition(robot.shoulder_left_Down);
     }
 
     public void delay(long millisToDelay) {

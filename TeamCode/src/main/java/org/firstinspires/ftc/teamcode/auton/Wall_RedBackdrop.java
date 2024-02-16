@@ -30,6 +30,7 @@
 package org.firstinspires.ftc.teamcode.auton;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -72,10 +73,10 @@ import java.util.concurrent.TimeUnit;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
+@Disabled
+@Autonomous(name="Wall_RedBackdrop", preselectTeleOp = "Tournament_TeleOp")
 
-@Autonomous(name="RedBackdrop", preselectTeleOp = "Tournament_TeleOp")
-
-public class RedBackdrop extends LinearOpMode {
+public class Wall_RedBackdrop extends LinearOpMode {
     //Put variables and classes here
     NewHardwareMap robot =   new NewHardwareMap();
 
@@ -156,7 +157,7 @@ public class RedBackdrop extends LinearOpMode {
                 break;
             case LEFT:
                 method.DESIRED_TAG_ID = 4;
-                method.pixelPos = 5;
+                method.pixelPos = 10;
                 method.right_dis = 2;
                 method.gyroDrive(0.8, 22, 0, 15.0);
                 method.gyroTurn(0.6, 90);
@@ -246,25 +247,25 @@ public class RedBackdrop extends LinearOpMode {
 
         method.gyroDrive(0.6, -7, -90, 15.0);
         method.gyroTurn(0.4, -90);
-        method.gyroStrafe(0.8, 27-method.pixelPos, -90, 15.0);
+        method.gyroStrafe(0.8, -30-method.pixelPos, -90, 15.0);
 
         robot.wrist_right.setPosition(robot.wrist_right_Drive);
         robot.wrist_left.setPosition(robot.wrist_left_Drive);
-        sleep(500);
+        sleep(300);
         robot.claw_right.setPosition(robot.claw_right_Close);
         robot.claw_left.setPosition(robot.claw_left_Close);
-        sleep(500);
+        sleep(300);
         robot.shoulder_right.setPosition(robot.shoulder_right_Down);
         robot.shoulder_left.setPosition(robot.shoulder_left_Down);
-        sleep(500);
+        sleep(300);
         while(robot.touch.isPressed() && opModeIsActive()) {
             robot.LiftMotor.setPower(-0.8);
         }
         robot.LiftMotor.setPower(0);
 
         //method.gyroDrive(0.8, 7, -90, 15.0);
-        method.gyroTurn(0.4, 90);
-        method.gyroDrive(0.8, -15, 90, 15.0);
+        //method.gyroTurn(0.4, 90);
+        //method.gyroDrive(0.8, -15, 90, 15.0);
 
         sleep(2000);
 

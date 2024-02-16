@@ -144,11 +144,11 @@ public class BlueBackstage extends LinearOpMode {
                 case MIDDLE:
                     method.DESIRED_TAG_ID = 2;
                     method.gyroStrafe(0.6, 8, 0, 15.0);
-                    method.gyroDrive(0.8, 21, 0, 15.0);
+                    method.gyroDrive(0.8, 20, 0, 15.0);
                     //method.gyroTurn(0.6, -30);
                     //sleep(1000);
                     robot.claw_right.setPosition(robot.claw_right_Open);
-                    method.gyroDrive(0.4, -6, 0, 15.0);
+                    method.gyroDrive(0.4, -5, 0, 15.0);
                     robot.claw_right.setPosition(robot.claw_right_Close);
                     method.gyroTurn(0.6, 90);
                     method.gyroDrive(0.4, 12, 90, 15.0);
@@ -212,10 +212,11 @@ public class BlueBackstage extends LinearOpMode {
             robot.LiftMotor.setPower(0.05);
 
             method.gyroDrive(0.6, -7, 90, 15.0);
-            method.gyroStrafe(0.8, -26+method.pixelPos, 90, 15.0);
+            method.gyroTurn(0.4, 90);
+            method.gyroStrafe(0.8, -27+method.pixelPos, 90, 15.0);
 
-            robot.wrist_right.setPosition(robot.wrist_right_Pu);
-            robot.wrist_left.setPosition(robot.wrist_left_Pu);
+            robot.wrist_right.setPosition(robot.wrist_right_Drive);
+            robot.wrist_left.setPosition(robot.wrist_left_Drive);
             sleep(500);
             robot.claw_right.setPosition(robot.claw_right_Close);
             robot.claw_left.setPosition(robot.claw_left_Close);

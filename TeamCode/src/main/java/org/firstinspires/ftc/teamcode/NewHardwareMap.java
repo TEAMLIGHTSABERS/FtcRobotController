@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -64,6 +65,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  * Servo channel:  Servo to open left claw:  "left_hand"
  * Servo channel:  Servo to open right claw: "right_hand"
  */
+@Config
 public class NewHardwareMap
 {
 
@@ -86,30 +88,33 @@ public class NewHardwareMap
 
     //position of servos
     //Less is more down
-    public final double shoulder_left_Down = 0.12;
-    public final double shoulder_left_Up = 0.51;
+    public static double shoulder_left_Down = 0.12;
+    public static double shoulder_left_Up = 0.51;
     //More is more down
-    public final double shoulder_right_Down = 0.82;
-    public final double shoulder_right_Up = 0.49;
+    public static double shoulder_right_Down = 0.82;
+    public static double shoulder_right_Up = 0.49;
     //Less is more down
-    public final double wrist_left_Pu = 0.77;//.8
-    public final double wrist_left_Drive = 0.83;
-    public final double wrist_left_Score = 0.12;
+    public static double wrist_left_Pu = 0.83;//.83
+    public static double wrist_left_Drive = 0.86; //86
+    public static double wrist_left_Drive_A = 0.91;
+    public static double wrist_left_Score = 0.07;
     //More is more down
     //Right is 2 less than necessary for 1.0
-    public final double wrist_right_Pu = 0.10;//.11
-    public final double wrist_right_Drive = 0.08;
-    public final double wrist_right_Score = 0.86;
+    public static double wrist_right_Pu = 0.11;//.11
+    public static double wrist_right_Drive = 0.09; //.09
+    public static double wrist_right_Drive_A = 0.07;
+    public static double wrist_right_Score = 0.86;
 
-    public final double claw_left_Open = 0.24;
-    public final double claw_left_Close = 0.13;
+    public static double claw_left_Open = 0.29;
+    public static double claw_left_Close = 0.23;
 
-    public final double claw_right_Open = 0.68;
-    public final double claw_right_Close = 0.77;
+    public static double claw_right_Open = 0.7;
+    public static double claw_right_Close = 0.76;
 
-    public final double droneVel = 2500;
+    public static double droneVel = 1825;
 
     public boolean up = true;
+    public boolean wrist_pickup = false;
     public boolean hand_close = false;
     public boolean hand_open = false;
 
@@ -136,24 +141,27 @@ public class NewHardwareMap
         FmotorRight = hwMap.dcMotor.get("right_motor"); //right1Motor
         FmotorRight.setDirection(DcMotor.Direction.REVERSE);
         FmotorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        FmotorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         BmotorRight = hwMap.dcMotor.get("b_right_motor"); //right2Motor
         BmotorRight.setDirection(DcMotor.Direction.REVERSE);
         BmotorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        BmotorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         FmotorLeft = hwMap.dcMotor.get("left_motor"); //left1Motor
         //FmotorLeft.setDirection(DcMotor.Direction.REVERSE);
         FmotorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        FmotorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         BmotorLeft = hwMap.dcMotor.get("b_left_motor"); //left2Motor
         //BmotorLeft.setDirection(DcMotor.Direction.REVERSE);
         BmotorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        BmotorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         LiftMotor = hwMap.dcMotor.get("lift_motor");
         LiftMotor.setDirection(DcMotor.Direction.REVERSE);
         LiftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //LiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //LiftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        LiftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         droneMotor = hwMap.get(DcMotorEx.class,"drone_motor");
         //droneMotor.setDirection(DcMotor.Direction.REVERSE);

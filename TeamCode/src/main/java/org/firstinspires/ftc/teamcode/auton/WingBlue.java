@@ -30,7 +30,9 @@
 package org.firstinspires.ftc.teamcode.auton;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.MethodMap;
@@ -132,64 +134,97 @@ public class WingBlue extends LinearOpMode {
         method.myVisionPortal.setProcessorEnabled(method.visionProcessor, false);
 
         method.gyroDrive(0.4, 5, 0, 15.0);
-        method.right_dis = 2;
+        robot.LiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         switch (method.visionProcessor.getSelection()) {
             case RIGHT:
                 method.DESIRED_TAG_ID = 3;
+                method.pixelPos = 8;
+                method.left_strafe = 8;
                 method.right_forward = 3;
-                method.pixelPos = 18;
+                method.right_dis = 1;
                 method.gyroStrafe(0.6, -15, 0, 15.0);
                 method.gyroDrive(0.8, 13, 0, 15.0);
                 robot.claw_left.setPosition(robot.claw_left_Open);
                 method.gyroDrive(0.4, -5, 0, 15.0);
                 robot.claw_left.setPosition(robot.claw_left_Close);
-                method.gyroStrafe(0.6, 15, 0, 15.0);
-                //method.gyroTurn(0.6, 90);
-                method.gyroDrive(0.4, 35, 0, 15.0);
-                //method.gyroStrafe(0.4, -15, 90, 15.0);
+                method.gyroStrafe(0.6, -11, 0, 15.0);
+                method.gyroDrive(0.4, 33, 0, 15.0);
+                method.gyroStrafe(0.6, 7, 0, 15.0);
+                method.gyroTurn(0.6, -90);
+                method.liftDrive(0.4, method.liftNum, 15.0);
+                robot.claw_left.setPosition(0.35);
+                method.gyroDrive(0.4, 8, -90, 15.0);
+                robot.claw_left.setPosition(robot.claw_left_Close);
+                sleep(200);
+                method.gyroDrive(0.4, -10, -90, 15.0);
                 method.gyroTurn(0.6, 90);
 
                 break;
             case LEFT:
                 method.DESIRED_TAG_ID = 1;
-                method.pixelPos = 5;
-                method.left_strafe = 10;
-                method.right_dis = 4;
+                method.pixelPos = 3;
+                method.right_forward = 3;
+                method.right_dis = 2;
+                method.left_strafe = -10;
                 method.gyroDrive(0.8, 22, 0, 15.0);
                 method.gyroTurn(0.6, 90);
                 robot.claw_left.setPosition(robot.claw_left_Open);
                 method.gyroDrive(0.8, -15, 90, 15.0);
                 robot.claw_left.setPosition(robot.claw_left_Close);
-                method.gyroTurn(0.6, 90);
-                method.gyroStrafe(0.4, -25,90, 15.0);
+                method.gyroTurn(0.6, -90);
+                method.gyroStrafe(0.4, 6,-90, 15.0);
+                method.liftDrive(0.4, method.liftNum, 15.0);
+                robot.claw_left.setPosition(0.35);
+                method.gyroDrive(0.4, 7, -90, 15.0);
+                robot.claw_left.setPosition(robot.claw_left_Close);
+                sleep(200);
+                method.gyroDrive(0.4, -7, -90, 15.0);
+                method.gyroTurn(0.6, -90);
+                method.gyroStrafe(0.4, 21,-90, 15.0);
                 method.gyroTurn(0.6, 90);
 
                 break;
             case MIDDLE:
                 method.DESIRED_TAG_ID = 2;
+                method.right_dis = 2;
+                method.pixelPos = 3;
                 method.gyroStrafe(0.6, -8, 0, 15.0);
                 method.gyroDrive(0.8, 20, 0, 15.0);
                 robot.claw_left.setPosition(robot.claw_left_Open);
                 method.gyroDrive(0.4, -5, 0, 15.0);
                 robot.claw_left.setPosition(robot.claw_left_Close);
-                method.gyroTurn(0.6, 90);
+                method.gyroTurn(0.6, -90);
                 sleep(200);
-                method.gyroDrive(0.4, -12, 90, 15.0);
+                method.gyroDrive(0.4, 12, -90, 15.0);
+                method.gyroTurn(0.6, -90);
+                method.gyroStrafe(0.6, 2, -90, 15.0);
+                method.liftDrive(0.4, method.liftNum, 15.0);
+                robot.claw_left.setPosition(0.35);
+                method.gyroDrive(0.4, 7, -90, 15.0);
+                robot.claw_left.setPosition(robot.claw_left_Close);
                 sleep(200);
+                method.gyroDrive(0.4, -7, -90, 15.0);
+                method.gyroTurn(0.6, -90);
+                method.gyroStrafe(0.6, 32, -90, 15.0);
+                method.gyroTurn(0.6, 0);
                 method.gyroTurn(0.6, 90);
-                method.gyroStrafe(0.6, -30, 90, 15.0);
-
+                method.backdropStrafe = true;
         };
 
-        robot.wrist_right.setPosition(robot.wrist_right_Drive);
-        robot.wrist_left.setPosition(robot.wrist_left_Drive);
+        robot.wrist_right.setPosition(robot.wrist_right_Drive_A);
+        robot.wrist_left.setPosition(robot.wrist_left_Drive_A);
+        while(robot.touch.isPressed() && opModeIsActive()) {
+            robot.LiftMotor.setPower(-0.8);
+        }
+        robot.LiftMotor.setPower(0);
 
-        //sleep(7000); //Sleep however long is necessary for alliance partner to finish
+        sleep(2000); //Sleep however long is necessary for alliance partner to finish
 
         method.gyroTurn(0.6, 90);
-        method.gyroDrive(0.8, 89-method.pixelPos, 90, 15.0);
-        method.gyroStrafe(0.6, 20+method.left_strafe-method.right_forward, 90, 15.0);
+        method.gyroDrive(0.8, 87-method.pixelPos, 90, 15.0);
+        sleep(200);
+        method.gyroStrafe(0.6, 27-method.left_strafe, 90, 15.0);
         method.gyroTurn(0.6, 90);
 
         //Drive to backdrop and deliver the yellow pixel to the correct spot
@@ -218,7 +253,7 @@ public class WingBlue extends LinearOpMode {
         }
 
         robot.LiftMotor.setPower(1.0);
-        sleep(500);
+        sleep(450);
         robot.LiftMotor.setPower(0.05);
 
         robot.shoulder_right.setPosition(robot.shoulder_right_Up);
@@ -230,44 +265,54 @@ public class WingBlue extends LinearOpMode {
 
         method.gyroTurn(0.4, 90);
 
-        method.gyroStrafe(0.5, -(method.desiredTag.ftcPose.x-method.DESIRED_DISTANCE_X- method.right_dis), 90, 15.0);
-        method.gyroDrive(0.5, method.desiredTag.ftcPose.y-method.DESIRED_DISTANCE+ method.right_forward, 90, 15.0);
+        method.gyroStrafe(0.5, -(method.desiredTag.ftcPose.x-method.DESIRED_DISTANCE_X-method.right_dis), 90, 15.0);
+        method.gyroDrive(0.5, method.desiredTag.ftcPose.y-method.DESIRED_DISTANCE-method.right_forward+1, 90, 15.0);
 
 
-        /*robot.LiftMotor.setPower(1.0);
-        sleep(350);
-        robot.LiftMotor.setPower(0.0);*/
-
-        //method.gyroDrive(0.5, 4, -90, 15.0);
         sleep(300);
 
         robot.claw_right.setPosition(robot.claw_right_Open);
 
-
-        sleep(500);
+        sleep(300);
 
         robot.LiftMotor.setPower(1.0);
         sleep(150);
         robot.LiftMotor.setPower(0.0);
 
+
+        if (method.DESIRED_TAG_ID == 2) {
+            method.gyroStrafe(0.6, 5, 90, 15.0);
+        }
+        else if (method.DESIRED_TAG_ID == 1){
+            method.gyroStrafe(0.6, -10, 90, 15.0);
+        }
+
+        method.gyroTurn(0.4, 90);
+
+        sleep(200);
+        robot.claw_left.setPosition(robot.claw_left_Open);
+
+        sleep(200);
+
         method.gyroDrive(0.6, -6, 90, 15.0);
         //method.gyroStrafe(0.8, -26 - method.right_dis, 90, 15.0);
 
-        robot.wrist_right.setPosition(robot.wrist_right_Pu);
-        robot.wrist_left.setPosition(robot.wrist_left_Pu);
-        sleep(500);
+        robot.wrist_right.setPosition(robot.wrist_right_Drive);
+        robot.wrist_left.setPosition(robot.wrist_left_Drive);
+        sleep(300);
         robot.claw_right.setPosition(robot.claw_right_Close);
         robot.claw_left.setPosition(robot.claw_left_Close);
-        sleep(500);
+        sleep(300);
         robot.shoulder_right.setPosition(robot.shoulder_right_Down);
         robot.shoulder_left.setPosition(robot.shoulder_left_Down);
-        sleep(500);
+        sleep(300);
         while(robot.touch.isPressed() && opModeIsActive()) {
             robot.LiftMotor.setPower(-0.8);
         }
         robot.LiftMotor.setPower(0);
 
         //method.gyroDrive(0.8, 7, -90, 15.0);
+        method.gyroTurn(0.4, 0);
         method.gyroTurn(0.4, -90);
 
         sleep(2000);
