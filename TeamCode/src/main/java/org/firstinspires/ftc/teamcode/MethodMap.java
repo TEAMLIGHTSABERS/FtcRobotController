@@ -62,7 +62,7 @@ public class MethodMap {
     public static final double     TURN_VALUE = 90;
     public static final double     HEADING_THRESHOLD       = 1 ;      // As tight as we can make it with an integer gyro
     public static final double     P_TURN_COEFF            = 0.02;     // Larger is more responsive, but also less stable
-    public static final double     P_DRIVE_COEFF           = 0.015;     // Larger is more responsive, but also less stable
+    public static final double     P_DRIVE_COEFF           = 0.012;     // Larger is more responsive, but also less stable
 
 
 
@@ -74,8 +74,10 @@ public class MethodMap {
     public int right_dis = 0;
     public int left_strafe = 0;
     public int right_forward;
+    public int liftNum = 285;
+    public boolean backdropStrafe = false;
     //These are the offset numbers for the AprilTag driving
-    public final double DESIRED_DISTANCE = 24.0;
+    public final double DESIRED_DISTANCE = 22.0;
     public final double DESIRED_DISTANCE_X = 4.0; //  this is how close the camera should get to the target (inches)
 
     //April Tag Variables
@@ -406,35 +408,47 @@ public class MethodMap {
 
     }
 
-    /*public void liftDrive(double speed, double LMotorInches, double timeoutS) {                                                                                                                                                                                                                 // :)
+    // Drives lift to set encoder target position
+    public void liftDrive(double speed, int LiftMotorTarget, double timeoutS) {                                                                                                                                                                                                                 // :)
 
-        int LMotorTarget;
-
-
+        // Reset Lift Encoder
         robot.LiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        // Determine new target position, and pass to motor controller
-        LMotorTarget  = (int)(-LMotorInches * COUNTS_PER_INCH);
-
-        robot.LiftMotor.setTargetPosition(LMotorTarget);
+        // Set Lift Target Position
+        robot.LiftMotor.setTargetPosition(LiftMotorTarget);
 
         // Turn On RUN_TO_POSITION
         robot.LiftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // reset the timeout time and start motion.
-        //runtime.reset();
+        runtime.reset();
         robot.LiftMotor.setPower(Math.abs(speed));
 
+        while (opMode.opModeIsActive() && (runtime.seconds() < timeoutS) && robot.LiftMotor.isBusy()) {
+            opMode.telemetry.addData("Target: ", "to %7d", LiftMotorTarget);
+            opMode.telemetry.addData("Postion:", "at %7d", robot.LiftMotor.getCurrentPosition());
+            opMode.telemetry.update();
+        }
 
-        // Stop all motion;
-        robot.LiftMotor.setPower(0);
+        // Minimize Lift power to hold lift at position
+        robot.LiftMotor.setPower(0.05);
+        robot.LiftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
 
+    // Changes encoder mode and takes lift back to the bottom
+    public void liftReset(double speed, double timeoutS){
+        //Turn Lift motor off
+        robot.LiftMotor.setPower(0.0);
 
         // Turn off RUN_TO_POSITION
-        robot.LiftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.LiftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        //sleep(250);   // optional pause after each move
-    }*/
+        // Drive Lift back to bottom
+        while(robot.touch.isPressed() && opMode.opModeIsActive()) {
+            robot.LiftMotor.setPower(speed);
+        }
+        robot.LiftMotor.setPower(0);
+    }
 
     public void gyroDrive ( double speed,
                             double distance,
