@@ -111,7 +111,7 @@ public class NewHardwareMap
     public static double claw_right_Open = 0.7;
     public static double claw_right_Close = 0.76;
 
-    public static double droneVel = 1825;
+    public static double droneVel = 2000;
 
     public boolean up = true;
     public boolean wrist_pickup = false;
